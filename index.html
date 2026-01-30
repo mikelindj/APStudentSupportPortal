@@ -1478,7 +1478,7 @@
                                 <div class="domains-title" style="margin-top: var(--spacing-l);">
                                     <h3>Strengths</h3>
                                 </div>
-                                <div id="meetingModalStrengths" class="readonly-field muted">—</div>
+                                <div id="meetingModalStrengths" class="domains-empty">—</div>
                             </div>
                         </div>
 
@@ -1584,7 +1584,7 @@
                                 <div class="domains-title">
                                     <h3>Strengths</h3>
                                 </div>
-                                <div id="outcomesStrengths" class="readonly-field muted">—</div>
+                                <div id="outcomesStrengths" class="domains-empty">—</div>
 
                                 <div class="domains-title">
                                     <h3>Case Details</h3>
@@ -2317,7 +2317,6 @@
                                 placeholder="Enter student strengths..."
                                 oninput="setStudentStrength('${student.new_studentsid}', this.value)"
                             >${escapeHtml(studentStrengths[student.new_studentsid] || '')}</textarea>
-                            <div class="help-text">This will be saved to Dataverse field <code>crd88_strengths</code>.</div>
                         </div>
                         ${renderDomainGroups(student.new_studentsid, conditionsSearch)}
                     </div>
