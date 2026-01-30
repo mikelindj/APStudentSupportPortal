@@ -1474,6 +1474,11 @@
                                 <div class="domains-scroll">
                                     <div id="meetingModalDomains" class="domains-empty">Loading…</div>
                                 </div>
+
+                                <div class="domains-title" style="margin-top: var(--spacing-l);">
+                                    <h3>Strengths</h3>
+                                </div>
+                                <div id="meetingModalStrengths" class="readonly-field muted">—</div>
                             </div>
                         </div>
 
@@ -1575,6 +1580,11 @@
                                     <h3>Domains & Conditions</h3>
                                 </div>
                                 <div id="outcomesDomains" class="domains-empty">Loading…</div>
+
+                                <div class="domains-title">
+                                    <h3>Strengths</h3>
+                                </div>
+                                <div id="outcomesStrengths" class="readonly-field muted">—</div>
 
                                 <div class="domains-title">
                                     <h3>Case Details</h3>
@@ -1933,6 +1943,7 @@
         let selectedStudents = {};  // studentId -> student object
         let studentConditions = {}; // studentId -> { domain -> [conditions] }
         let conditionsSearch = '';
+        let studentStrengths = {}; // studentId -> string
 
         // Meeting state
         let meetingClasses = [];
@@ -2145,6 +2156,10 @@
             showStep(1);
             selectedStudents = {};
             studentConditions = {};
+            studentStrengths = {};
+            conditionsSearch = '';
+            const searchEl = document.getElementById('conditionsSearch');
+            if (searchEl) searchEl.value = '';
             loadClasses();
         }
 
@@ -2247,9 +2262,11 @@
             if (selectedStudents[studentId]) {
                 delete selectedStudents[studentId];
                 delete studentConditions[studentId];
+                delete studentStrengths[studentId];
             } else {
                 selectedStudents[studentId] = student;
                 studentConditions[studentId] = {};
+                studentStrengths[studentId] = '';
             }
 
             renderStudentList();
@@ -2291,12 +2308,27 @@
                         ${student.crd88_indexnumber ? `<p style="margin: var(--spacing-xs) 0 0 0; color: var(--colorNeutralForeground3); font-size: var(--fontSizeSmall);">${student.crd88_indexnumber}</p>` : ''}
                     </div>
                     <div class="conditions-column">
+                        <div class="form-group" style="margin-bottom: var(--spacing-l);">
+                            <label for="strengths-${student.new_studentsid}">Strengths</label>
+                            <textarea
+                                id="strengths-${student.new_studentsid}"
+                                class="form-control short"
+                                rows="2"
+                                placeholder="Enter student strengths..."
+                                oninput="setStudentStrength('${student.new_studentsid}', this.value)"
+                            >${escapeHtml(studentStrengths[student.new_studentsid] || '')}</textarea>
+                            <div class="help-text">This will be saved to Dataverse field <code>crd88_strengths</code>.</div>
+                        </div>
                         ${renderDomainGroups(student.new_studentsid, conditionsSearch)}
                     </div>
                 </div>
             `).join('');
 
             updateStep3Button();
+        }
+
+        function setStudentStrength(studentId, value) {
+            studentStrengths[studentId] = value || '';
         }
 
         function normalizeSearchTerm(term) {
@@ -2410,6 +2442,7 @@
             
             const reviews = Object.entries(selectedStudents).map(([studentId, student]) => {
                 const conditions = studentConditions[studentId] || {};
+                const strengths = (studentStrengths[studentId] || '').trim();
                 const conditionsList = Object.entries(conditions)
                     .filter(([_, conds]) => conds.length > 0)
                     .map(([domain, conds]) => `
@@ -2424,6 +2457,12 @@
                 return `
                     <div class="selected-student-card">
                         <h4>${student.new_fullname || 'Unknown Student'}</h4>
+                        <div style="margin: var(--spacing-s) 0 var(--spacing-m) 0;">
+                            <strong>Strengths:</strong>
+                            <div style="white-space: pre-wrap; color: var(--colorNeutralForeground2); margin-top: var(--spacing-xs);">
+                                ${strengths ? escapeHtml(strengths) : '<span style="color: var(--colorNeutralForeground3);">—</span>'}
+                            </div>
+                        </div>
                         ${conditionsList || '<p style="color: var(--colorNeutralForeground3);">No conditions selected</p>'}
                     </div>
                 `;
@@ -2449,6 +2488,7 @@
                             studentId: studentId,
                             studentName: student.new_fullname,
                             domainsAndIssues,
+                            strengths: (studentStrengths[studentId] || '').trim(),
                             referredBy: currentUserEmail,
                             referredByName: currentUserDisplayName
                         });
@@ -2676,6 +2716,14 @@
                 `).join('');
             }
 
+            // Strengths
+            const strengthsDiv = document.getElementById('outcomesStrengths');
+            if (strengthsDiv) {
+                const strengths = (c.crd88_strengths || '').trim();
+                strengthsDiv.textContent = strengths || '—';
+                strengthsDiv.className = strengths ? 'readonly-field' : 'readonly-field muted';
+            }
+
             // Quick reference (styled text)
             document.getElementById('outcomesGoals').textContent = (c.crd88_ap_goals || '').trim() || '—';
             document.getElementById('outcomesActionPlan').textContent = (c.crd88_ap_actionplan || '').trim() || '—';
@@ -2861,6 +2909,14 @@
                 // Render immediately, then update after cases load
                 renderMeetingStudentsList();
                 await Promise.all(casePromises);
+
+                // Hide cases that already have a next review date (they move to Review Outcomes)
+                for (const [sid, c] of Object.entries(meetingStudentLatestCase)) {
+                    if (c && c.crd88_ap_reviewdate) {
+                        delete meetingStudentLatestCase[sid];
+                    }
+                }
+
                 renderMeetingStudentsList();
             } catch (error) {
                 container.innerHTML = `<div class="empty-state"><p>Error loading students: ${error.message}</p></div>`;
@@ -2877,7 +2933,7 @@
 
             const rows = meetingStudents.map(s => {
                 const c = meetingStudentLatestCase[s.new_studentsid];
-                const hasCase = !!c;
+                const hasCase = !!c; // now only cases without review date remain
                 const summary = hasCase ? (c.crd88_domainsandissues || '').split(/\r?\n/).slice(0, 4).join(' · ') : '';
 
                 return `
@@ -2888,8 +2944,8 @@
                                 ${s.new_fullname || 'Unknown'}
                                 ${s.crd88_indexnumber ? `<span style=\"color: var(--colorNeutralForeground3); font-weight: var(--fontWeightRegular);\"> (${s.crd88_indexnumber})</span>` : ''}
                             </div>
-                            <div style="margin-top: var(--spacing-xs); color: var(--colorNeutralForeground2); font-size: var(--fontSizeSmall); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${hasCase ? (summary || 'Referral found (no details)') : 'No referral found'}
+                        <div style="margin-top: var(--spacing-xs); color: var(--colorNeutralForeground2); font-size: var(--fontSizeSmall); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${hasCase ? (summary || 'Referral found (no details)') : 'No pending meeting plan (or no referral)'}
                             </div>
                         </div>
                         <div style="margin-left: var(--spacing-m); color: var(--colorNeutralForeground3); font-size: var(--fontSizeSmall);">
@@ -2899,7 +2955,13 @@
                 `;
             }).join('');
 
-            container.innerHTML = `<div style="display: grid; gap: var(--spacing-s);">${rows}</div>`;
+            const hasAny = meetingStudents.some(s => !!meetingStudentLatestCase[s.new_studentsid]);
+            if (!hasAny) {
+                container.innerHTML = `<div class="empty-state"><p>No students pending meeting plans for this class.</p></div>`;
+                return;
+            }
+
+            container.innerHTML = `<div style="display: grid; gap: var(--spacing-s);">${rows.filter(r => r.includes('onclick=')).join('')}</div>`;
         }
 
         function openMeetingModal(studentId) {
@@ -2932,6 +2994,14 @@
                         </div>
                     </div>
                 `).join('');
+            }
+
+            // Strengths
+            const strengthsDiv = document.getElementById('meetingModalStrengths');
+            if (strengthsDiv) {
+                const strengths = (supportCase.crd88_strengths || '').trim();
+                strengthsDiv.textContent = strengths || '—';
+                strengthsDiv.className = strengths ? 'readonly-field' : 'readonly-field muted';
             }
 
             // Prefill form if fields exist
