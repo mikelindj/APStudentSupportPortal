@@ -1,0 +1,42 @@
+{
+  "$schema": "https://developer.microsoft.com/en-us/json-schemas/teams/v1.16/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.16",
+  "version": "1.0.0",
+  "id": "b9a1f0e2-1b03-4ed2-a2c6-7c5b3e8f7c11",
+  "packageName": "edu.acsacademy.apstudentsupport",
+  "developer": {
+    "name": "ACS Academy",
+    "websiteUrl": "https://www.acsacademy.edu.sg",
+    "privacyUrl": "https://www.acsacademy.edu.sg",
+    "termsOfUseUrl": "https://www.acsacademy.edu.sg"
+  },
+  "name": {
+    "short": "AP Student Support",
+    "full": "AP Student Support App"
+  },
+  "description": {
+    "short": "AP Student Support referrals, meetings, and outcomes.",
+    "full": "AP Student Support app for submitting referrals, documenting support meetings, and reviewing outcomes."
+  },
+  "icons": {
+    "color": "color.png",
+    "outline": "outline.png"
+  },
+  "accentColor": "#334155",
+  "staticTabs": [
+    {
+      "entityId": "ap-student-support",
+      "name": "AP Student Support",
+      "contentUrl": "https://<YOUR_AZURE_STATIC_WEB_APPS_HOSTNAME>/index.html",
+      "websiteUrl": "https://<YOUR_AZURE_STATIC_WEB_APPS_HOSTNAME>/index.html",
+      "scopes": [
+        "personal"
+      ]
+    }
+  ],
+  "validDomains": [
+    "<YOUR_AZURE_STATIC_WEB_APPS_HOSTNAME>",
+    "*.azurestaticapps.net"
+  ]
+}
+

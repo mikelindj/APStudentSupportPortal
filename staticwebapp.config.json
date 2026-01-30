@@ -1,0 +1,16 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": [
+      "/*.{png,jpg,jpeg,gif,webp,svg,ico}",
+      "/assets/*"
+    ]
+  },
+  "globalHeaders": {
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=()",
+    "Content-Security-Policy": "default-src 'self' https: data: blob:; script-src 'self' 'unsafe-inline' https://res.cdn.office.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self' https://parents.acsacademy.edu.sg https://login.microsoftonline.com; frame-ancestors https://teams.microsoft.com https://*.teams.microsoft.com https://*.skype.com;"
+  }
+}
+

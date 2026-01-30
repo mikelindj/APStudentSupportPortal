@@ -1,0 +1,3035 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AP Student Support Portal - ACS (A)</title>
+    <script src="https://res.cdn.office.net/teams-js/2.0.0/js/MicrosoftTeams.min.js"></script>
+    <style>
+        /* Fluent UI Design System */
+        :root {
+            /* Fluent UI Colors */
+            --colorNeutralBackground1: #ffffff;
+            --colorNeutralBackground2: #faf9f8;
+            --colorNeutralBackground3: #f3f2f1;
+            --colorNeutralForeground1: #323130;
+            --colorNeutralForeground2: #605e5c;
+            --colorNeutralForeground3: #8a8886;
+            --colorNeutralStroke1: #edebe9;
+            --colorNeutralStroke2: #e1dfdd;
+            
+            /* Brand Colors */
+            --colorBrandBackground: rgb(51, 65, 85);
+            --colorBrandForeground: #ffffff;
+            --colorAccent: rgb(255, 197, 38);
+            --colorAccentHover: rgb(255, 187, 20);
+            --colorError: rgb(172, 0, 39);
+            --colorSuccess: #107c10;
+            
+            /* Spacing (4px base unit) */
+            --spacing-xs: 4px;
+            --spacing-s: 8px;
+            --spacing-m: 16px;
+            --spacing-l: 24px;
+            --spacing-xl: 32px;
+            --spacing-xxl: 40px;
+            
+            /* Typography */
+            --fontFamilyBase: 'Segoe UI', 'Segoe UI Web (West European)', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', sans-serif;
+            --fontSizeBase: 14px;
+            --fontSizeSmall: 12px;
+            --fontSizeMedium: 16px;
+            --fontSizeLarge: 20px;
+            --fontSizeXLarge: 24px;
+            --fontSizeXXLarge: 28px;
+            --fontWeightRegular: 400;
+            --fontWeightSemibold: 600;
+            --fontWeightBold: 700;
+            
+            /* Shadows */
+            --shadow2: 0 1.6px 3.6px rgba(0, 0, 0, 0.13), 0 0.3px 0.9px rgba(0, 0, 0, 0.11);
+            --shadow4: 0 3.2px 7.2px rgba(0, 0, 0, 0.13), 0 0.6px 1.8px rgba(0, 0, 0, 0.11);
+            --shadow8: 0 6.4px 14.4px rgba(0, 0, 0, 0.13), 0 1.2px 3.6px rgba(0, 0, 0, 0.11);
+            --shadow16: 0 12.8px 28.8px rgba(0, 0, 0, 0.13), 0 2.4px 7.2px rgba(0, 0, 0, 0.11);
+            
+            /* Border Radius */
+            --radiusSmall: 2px;
+            --radiusMedium: 4px;
+            --radiusLarge: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--fontFamilyBase);
+            font-size: var(--fontSizeBase);
+            font-weight: var(--fontWeightRegular);
+            background: var(--colorNeutralBackground2);
+            color: var(--colorNeutralForeground1);
+            min-height: 100vh;
+            padding: 0;
+            line-height: 1.5;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: var(--colorNeutralBackground1);
+            min-height: 100vh;
+            box-shadow: var(--shadow4);
+        }
+
+        .header {
+            background: var(--colorBrandBackground);
+            color: var(--colorBrandForeground);
+            padding: var(--spacing-l) var(--spacing-xl);
+            box-shadow: var(--shadow2);
+        }
+
+        .header h1 {
+            font-size: var(--fontSizeXXLarge);
+            font-weight: var(--fontWeightSemibold);
+            margin-bottom: var(--spacing-xs);
+            line-height: 1.2;
+        }
+
+        .header .subtitle {
+            font-size: var(--fontSizeBase);
+            opacity: 0.9;
+            font-weight: var(--fontWeightRegular);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: var(--spacing-s);
+            padding: var(--spacing-m) var(--spacing-xl);
+            background: var(--colorNeutralBackground1);
+            border-bottom: 1px solid var(--colorNeutralStroke2);
+            flex-wrap: wrap;
+        }
+
+        .nav-tab {
+            padding: var(--spacing-s) var(--spacing-l);
+            background: var(--colorNeutralBackground3);
+            border: none;
+            border-radius: var(--radiusMedium);
+            font-size: var(--fontSizeBase);
+            font-weight: var(--fontWeightSemibold);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: var(--colorNeutralForeground1);
+            min-height: 32px;
+        }
+
+        .nav-tab:hover {
+            background: var(--colorNeutralStroke1);
+        }
+
+        .nav-tab.active {
+            background: var(--colorBrandBackground);
+            color: var(--colorBrandForeground);
+        }
+
+        .view-container {
+            display: none;
+            padding: var(--spacing-xl);
+        }
+
+        .view-container.active {
+            display: block;
+        }
+
+        #homeView {
+            padding-top: var(--spacing-m);
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: var(--spacing-m) var(--spacing-l);
+            }
+            
+            .header h1 {
+                font-size: var(--fontSizeXLarge);
+            }
+            
+            .nav-tabs {
+                padding: var(--spacing-m);
+                gap: var(--spacing-xs);
+            }
+            
+            .nav-tab {
+                padding: var(--spacing-xs) var(--spacing-m);
+                font-size: var(--fontSizeSmall);
+            }
+            
+            .view-container {
+                padding: var(--spacing-m);
+            }
+        }
+
+        .main-menu {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--spacing-l);
+            margin-top: var(--spacing-s);
+        }
+
+        .menu-card {
+            border-radius: var(--radiusLarge);
+            padding: var(--spacing-xl);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow4);
+            border: none;
+        }
+
+        .menu-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow8);
+        }
+
+        @media (max-width: 768px) {
+            .main-menu {
+                grid-template-columns: 1fr;
+                gap: var(--spacing-m);
+            }
+            
+            .menu-card {
+                padding: var(--spacing-l);
+            }
+        }
+
+        .menu-card.menu-card-yellow {
+            background: rgb(255, 197, 38);
+        }
+
+        .menu-card.menu-card-blue {
+            background: rgb(51, 65, 85);
+        }
+
+        .menu-card.menu-card-red {
+            background: rgb(172, 0, 39);
+        }
+
+        .menu-card h2 {
+            margin-bottom: var(--spacing-s);
+            font-size: var(--fontSizeLarge);
+            font-weight: var(--fontWeightSemibold);
+            line-height: 1.3;
+        }
+
+        .menu-card.menu-card-yellow h2,
+        .menu-card.menu-card-yellow p {
+            color: rgb(51, 65, 85);
+        }
+
+        .menu-card.menu-card-blue h2,
+        .menu-card.menu-card-blue p {
+            color: white;
+        }
+
+        .menu-card.menu-card-red h2,
+        .menu-card.menu-card-red p {
+            color: white;
+        }
+
+        .menu-card p {
+            margin-bottom: 0;
+            font-size: var(--fontSizeSmall);
+            line-height: 1.4;
+        }
+
+        .menu-card-icon {
+            width: 48px;
+            height: 48px;
+            margin: 0 auto var(--spacing-s);
+            fill: none;
+            stroke-width: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            .menu-card-icon {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .menu-card h2 {
+                font-size: var(--fontSizeMedium);
+            }
+        }
+
+        .menu-card-icon svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .menu-card.menu-card-yellow .menu-card-icon {
+            stroke: rgb(51, 65, 85);
+        }
+
+        .menu-card.menu-card-blue .menu-card-icon {
+            stroke: white;
+        }
+
+        .menu-card.menu-card-blue .menu-card-icon svg {
+            stroke: white !important;
+        }
+
+        .menu-card.menu-card-red .menu-card-icon {
+            stroke: white;
+        }
+
+        .menu-card.menu-card-red .menu-card-icon svg {
+            stroke: white !important;
+        }
+
+        .status {
+            margin-top: var(--spacing-l);
+            padding: var(--spacing-m);
+            border-radius: var(--radiusMedium);
+            display: none;
+            font-size: var(--fontSizeBase);
+            font-weight: var(--fontWeightRegular);
+        }
+
+        .status.success {
+            background: #dff6dd;
+            color: #107c10;
+            border: 1px solid #92c47c;
+            display: block;
+        }
+
+        .status.error {
+            background: #fde7e9;
+            color: #a80000;
+            border: 1px solid #f4a5a9;
+            display: block;
+        }
+
+        .status.info {
+            background: #deecf9;
+            color: #004578;
+            border: 1px solid #b3d9f2;
+            display: block;
+        }
+
+        .btn {
+            padding: var(--spacing-s) var(--spacing-m);
+            border: none;
+            border-radius: var(--radiusMedium);
+            font-size: var(--fontSizeBase);
+            font-weight: var(--fontWeightSemibold);
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            min-height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--colorBrandBackground);
+            color: var(--colorBrandForeground);
+        }
+
+        .btn-primary:hover {
+            background: rgb(40, 52, 68);
+            box-shadow: var(--shadow2);
+        }
+
+        .btn-success {
+            background: var(--colorAccent);
+            color: var(--colorBrandBackground);
+        }
+
+        .btn-success:hover {
+            background: var(--colorAccentHover);
+            box-shadow: var(--shadow2);
+        }
+
+        .btn-secondary {
+            background: var(--colorNeutralBackground3);
+            color: var(--colorNeutralForeground1);
+            border: 1px solid var(--colorNeutralStroke2);
+        }
+
+        .btn-secondary:hover {
+            background: var(--colorNeutralStroke1);
+            box-shadow: var(--shadow2);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 768px) {
+            .btn {
+                padding: var(--spacing-xs) var(--spacing-m);
+                font-size: var(--fontSizeSmall);
+                min-height: 28px;
+            }
+        }
+
+        h2 {
+            font-size: var(--fontSizeXLarge);
+            font-weight: var(--fontWeightSemibold);
+            color: var(--colorNeutralForeground1);
+            margin-bottom: var(--spacing-m);
+            line-height: 1.3;
+        }
+
+        h3 {
+            font-size: var(--fontSizeLarge);
+            font-weight: var(--fontWeightSemibold);
+            color: var(--colorBrandBackground);
+            margin-bottom: var(--spacing-m);
+            margin-top: var(--spacing-xl);
+            line-height: 1.3;
+        }
+
+        h3:first-child {
+            margin-top: 0;
+        }
+
+        p {
+            font-size: var(--fontSizeBase);
+            color: var(--colorNeutralForeground2);
+            margin-bottom: var(--spacing-m);
+            line-height: 1.5;
+        }
+
+        @media (max-width: 768px) {
+            h2 {
+                font-size: var(--fontSizeLarge);
+            }
+            
+            h3 {
+                font-size: var(--fontSizeMedium);
+            }
+        }
+
+        /* Auth screens */
+        .auth-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
+            z-index: 9999;
+        }
+
+        .auth-content {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+            max-width: 400px;
+        }
+
+        .auth-content h2 {
+            margin: 20px 0 10px;
+            color: rgb(51, 65, 85);
+        }
+
+        .auth-content p {
+            color: #666;
+            margin: 10px 0;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e0e0e0;
+            border-top-color: rgb(51, 65, 85);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Class tabs bar */
+        .class-tabs {
+            display: flex;
+            gap: var(--spacing-xs);
+            padding: var(--spacing-m);
+            background: var(--colorNeutralBackground2);
+            border-radius: var(--radiusMedium);
+            overflow-x: auto;
+            margin-bottom: var(--spacing-l);
+            flex-wrap: wrap;
+        }
+
+        .class-tab {
+            padding: var(--spacing-s) var(--spacing-m);
+            background: var(--colorNeutralBackground1);
+            border: 1px solid var(--colorNeutralStroke2);
+            border-radius: var(--radiusMedium);
+            font-size: var(--fontSizeSmall);
+            font-weight: var(--fontWeightSemibold);
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .class-tab:hover {
+            background: var(--colorNeutralStroke1);
+        }
+
+        .class-tab.active {
+            background: var(--colorBrandBackground);
+            color: var(--colorBrandForeground);
+            border-color: var(--colorBrandBackground);
+        }
+
+        /* Student list */
+        .student-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: var(--spacing-s);
+            margin-bottom: var(--spacing-l);
+        }
+
+        .student-item {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-m);
+            background: var(--colorNeutralBackground1);
+            border: 1px solid var(--colorNeutralStroke2);
+            border-radius: var(--radiusMedium);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .student-item:hover {
+            background: var(--colorNeutralBackground2);
+            border-color: var(--colorBrandBackground);
+        }
+
+        .student-item.selected {
+            background: rgba(255, 197, 38, 0.15);
+            border-color: var(--colorAccent);
+        }
+
+        .student-item input[type="checkbox"] {
+            margin-right: var(--spacing-s);
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .student-item label {
+            cursor: pointer;
+            flex: 1;
+        }
+
+        /* Selected students section */
+        .selected-students-section {
+            margin-bottom: var(--spacing-l);
+        }
+
+        .selected-student-card {
+            background: var(--colorNeutralBackground2);
+            border-radius: var(--radiusMedium);
+            padding: var(--spacing-l);
+            margin-bottom: var(--spacing-m);
+            border-left: 4px solid var(--colorAccent);
+            display: flex;
+            gap: var(--spacing-l);
+        }
+
+        .selected-student-card .student-name-column {
+            width: 25%;
+            flex-shrink: 0;
+            position: sticky;
+            top: var(--spacing-l);
+            align-self: flex-start;
+        }
+
+        .selected-student-card .conditions-column {
+            width: 75%;
+            flex-grow: 1;
+        }
+
+        .selected-student-card h4 {
+            margin: 0;
+            color: var(--colorBrandBackground);
+            font-size: var(--fontSizeMedium);
+            word-wrap: break-word;
+        }
+
+        @media (max-width: 768px) {
+            .selected-student-card {
+                flex-direction: column;
+            }
+            
+            .selected-student-card .student-name-column {
+                width: 100%;
+                position: static;
+                margin-bottom: var(--spacing-m);
+            }
+            
+            .selected-student-card .conditions-column {
+                width: 100%;
+            }
+        }
+
+        /* Domain groups */
+        .domain-group {
+            margin-bottom: var(--spacing-m);
+        }
+
+        .domain-header {
+            background: var(--colorBrandBackground);
+            color: var(--colorBrandForeground);
+            padding: var(--spacing-s) var(--spacing-m);
+            border-radius: var(--radiusMedium) var(--radiusMedium) 0 0;
+            font-weight: var(--fontWeightSemibold);
+            font-size: var(--fontSizeSmall);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .domain-header:hover {
+            background: rgb(40, 52, 68);
+        }
+
+        .domain-header .toggle-icon {
+            transition: transform 0.2s;
+        }
+
+        .domain-header.collapsed .toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .domain-conditions {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: var(--spacing-xs);
+            padding: var(--spacing-m);
+            background: var(--colorNeutralBackground1);
+            border: 1px solid var(--colorNeutralStroke2);
+            border-top: none;
+            border-radius: 0 0 var(--radiusMedium) var(--radiusMedium);
+        }
+
+        .domain-conditions.collapsed {
+            display: none;
+        }
+
+        .condition-item {
+            display: flex;
+            align-items: flex-start;
+            padding: var(--spacing-xs);
+        }
+
+        .condition-item input[type="checkbox"] {
+            margin-right: var(--spacing-s);
+            margin-top: 2px;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .condition-item label {
+            cursor: pointer;
+            font-size: var(--fontSizeSmall);
+            line-height: 1.4;
+        }
+
+        /* Stepper */
+        .stepper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: var(--spacing-xl);
+            padding: var(--spacing-m);
+        }
+
+        .step {
+            display: flex;
+            align-items: center;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--colorNeutralStroke2);
+            color: var(--colorNeutralForeground2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--fontWeightSemibold);
+            font-size: var(--fontSizeSmall);
+        }
+
+        .step.active .step-number {
+            background: var(--colorBrandBackground);
+            color: var(--colorBrandForeground);
+        }
+
+        .step.completed .step-number {
+            background: var(--colorAccent);
+            color: var(--colorBrandBackground);
+        }
+
+        .step-label {
+            margin-left: var(--spacing-s);
+            font-size: var(--fontSizeSmall);
+            color: var(--colorNeutralForeground2);
+        }
+
+        .step.active .step-label {
+            color: var(--colorNeutralForeground1);
+            font-weight: var(--fontWeightSemibold);
+        }
+
+        .step-connector {
+            width: 60px;
+            height: 2px;
+            background: var(--colorNeutralStroke2);
+            margin: 0 var(--spacing-s);
+        }
+
+        .step-connector.completed {
+            background: var(--colorAccent);
+        }
+
+        @media (max-width: 768px) {
+            .step-label {
+                display: none;
+            }
+            
+            .step-connector {
+                width: 30px;
+            }
+        }
+
+        /* Action buttons container */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--spacing-l);
+            background: var(--colorNeutralBackground2);
+            border-radius: var(--radiusMedium);
+            margin-top: var(--spacing-l);
+        }
+
+        .action-bar .btn {
+            min-width: 120px;
+        }
+
+        /* Loading state */
+        .loading {
+            text-align: center;
+            padding: var(--spacing-xxl);
+            color: var(--colorNeutralForeground2);
+        }
+
+        .spinner {
+            border: 3px solid var(--colorNeutralStroke1);
+            border-top: 3px solid var(--colorBrandBackground);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto var(--spacing-l);
+        }
+
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xxl);
+            color: var(--colorNeutralForeground2);
+        }
+
+        .empty-state svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: var(--spacing-m);
+            stroke: var(--colorNeutralStroke2);
+        }
+
+        /* Modal (Professional) */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 1000;
+            overflow-y: auto;
+            padding: var(--spacing-l) var(--spacing-m);
+        }
+
+        .modal-card {
+            max-width: 1120px;
+            margin: 0 auto;
+            background: var(--colorNeutralBackground1);
+            border-radius: 14px;
+            box-shadow: var(--shadow16);
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .modal-header {
+            padding: var(--spacing-m) var(--spacing-xl);
+            border-bottom: 1px solid var(--colorNeutralStroke2);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-l);
+            background: linear-gradient(180deg, var(--colorNeutralBackground1), var(--colorNeutralBackground2));
+        }
+
+        .modal-title-wrap h2 {
+            margin: 0;
+        }
+
+        .modal-title-wrap .modal-header-title {
+            font-size: var(--fontSizeLarge);
+            font-weight: var(--fontWeightSemibold);
+            color: var(--colorNeutralForeground1);
+            line-height: 1.2;
+        }
+
+        .modal-close-btn {
+            border: 1px solid var(--colorNeutralStroke2);
+            background: var(--colorNeutralBackground1);
+            color: var(--colorNeutralForeground1);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+
+        .modal-close-btn:hover {
+            background: var(--colorNeutralBackground2);
+            box-shadow: var(--shadow2);
+        }
+
+        .modal-body {
+            padding: var(--spacing-l) var(--spacing-xl);
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: var(--spacing-xl);
+        }
+
+        .panel {
+            background: var(--colorNeutralBackground2);
+            border: 1px solid var(--colorNeutralStroke2);
+            border-radius: 12px;
+            padding: var(--spacing-l);
+        }
+
+        .panel h3 {
+            margin-top: 0;
+            margin-bottom: var(--spacing-m);
+        }
+
+        .domains-panel {
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .student-context {
+            padding: var(--spacing-l);
+            border-bottom: 1px solid var(--colorNeutralStroke2);
+            background: linear-gradient(180deg, rgba(255,255,255,0.6), rgba(250,249,248,1));
+        }
+
+        .student-context-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: var(--spacing-m);
+        }
+
+        .student-name {
+            font-size: 22px;
+            font-weight: var(--fontWeightSemibold);
+            color: var(--colorBrandBackground);
+            line-height: 1.15;
+            margin: 0;
+        }
+
+        .student-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-s);
+            margin-top: var(--spacing-s);
+            flex-wrap: wrap;
+        }
+
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 999px;
+            border: 1px solid var(--colorNeutralStroke2);
+            background: var(--colorNeutralBackground1);
+            color: var(--colorNeutralForeground1);
+            font-size: var(--fontSizeSmall);
+            font-weight: var(--fontWeightSemibold);
+        }
+
+        .meta-pill .label {
+            color: var(--colorNeutralForeground2);
+            font-weight: var(--fontWeightRegular);
+        }
+
+        .domains-section {
+            padding: var(--spacing-l);
+        }
+
+        .domains-title {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: var(--spacing-m);
+            margin-bottom: var(--spacing-m);
+        }
+
+        .domains-title h3 {
+            margin: 0;
+        }
+
+        .domains-scroll {
+            max-height: 520px;
+            overflow: auto;
+            padding-right: 6px;
+        }
+
+        .domains-empty {
+            color: var(--colorNeutralForeground2);
+            font-size: var(--fontSizeSmall);
+        }
+
+        .form-grid {
+            display: grid;
+            gap: var(--spacing-m);
+        }
+
+        .form-group {
+            display: grid;
+            gap: var(--spacing-xs);
+        }
+
+        .form-group label {
+            font-weight: var(--fontWeightSemibold);
+            color: var(--colorNeutralForeground1);
+            font-size: var(--fontSizeSmall);
+        }
+
+        .help-text {
+            color: var(--colorNeutralForeground2);
+            font-size: var(--fontSizeSmall);
+            line-height: 1.4;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--colorNeutralStroke2);
+            border-radius: 10px;
+            background: var(--colorNeutralBackground1);
+            color: var(--colorNeutralForeground1);
+            font-family: var(--fontFamilyBase);
+            font-size: var(--fontSizeBase);
+            line-height: 1.4;
+            transition: box-shadow 0.15s ease, border-color 0.15s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: rgba(51, 65, 85, 0.7);
+            box-shadow: 0 0 0 3px rgba(51, 65, 85, 0.12);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 96px;
+        }
+
+        textarea.form-control.short {
+            min-height: 72px;
+        }
+
+        .form-control::placeholder {
+            color: var(--colorNeutralForeground3);
+        }
+
+        .meeting-plan-note {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-s);
+            padding: var(--spacing-m);
+            border-radius: 12px;
+            background: rgba(255, 197, 38, 0.10);
+            border: 1px solid rgba(255, 197, 38, 0.35);
+            margin-bottom: var(--spacing-m);
+        }
+
+        .meeting-plan-note .icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
+            color: rgb(51, 65, 85);
+        }
+
+        /* Read-only fields (quick reference) */
+        .readonly-field {
+            background: var(--colorNeutralBackground1);
+            border: 1px solid var(--colorNeutralStroke2);
+            border-radius: 12px;
+            padding: 12px 12px;
+            color: var(--colorNeutralForeground1);
+            font-size: var(--fontSizeBase);
+            line-height: 1.45;
+            white-space: pre-wrap;
+            min-height: 44px;
+        }
+
+        .readonly-field.muted {
+            color: var(--colorNeutralForeground2);
+        }
+
+        /* Large switch */
+        .switch-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-m);
+            padding: var(--spacing-m);
+            border-radius: 12px;
+            background: var(--colorNeutralBackground1);
+            border: 1px solid var(--colorNeutralStroke2);
+        }
+
+        .switch-row .switch-label {
+            display: grid;
+            gap: 2px;
+        }
+
+        .switch-row .switch-label strong {
+            font-weight: var(--fontWeightSemibold);
+            color: var(--colorNeutralForeground1);
+        }
+
+        .switch-row .switch-label span {
+            font-size: var(--fontSizeSmall);
+            color: var(--colorNeutralForeground2);
+        }
+
+        /* Fluent-like switch */
+        .toggle {
+            position: relative;
+            width: 52px;
+            height: 28px;
+            flex-shrink: 0;
+            display: inline-block;
+        }
+
+        /* Make the input capture clicks */
+        .toggle input {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        .toggle .track {
+            position: absolute;
+            inset: 0;
+            background: #c8c6c4; /* Fluent neutral */
+            border-radius: 999px;
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
+            transition: background 120ms ease, box-shadow 120ms ease;
+        }
+
+        .toggle .thumb {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 24px;
+            height: 24px;
+            background: #ffffff;
+            border-radius: 999px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.12);
+            transition: transform 120ms ease;
+        }
+
+        /* On state = green */
+        .toggle input:checked + .track {
+            background: var(--colorSuccess);
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
+        }
+
+        .toggle input:checked + .track .thumb {
+            transform: translateX(24px);
+        }
+
+        /* Hover */
+        .toggle input:hover + .track {
+            box-shadow: inset 0 0 0 1px rgba(0,0,0,0.16);
+        }
+
+        /* Focus ring */
+        .toggle input:focus-visible + .track {
+            box-shadow:
+                inset 0 0 0 1px rgba(0,0,0,0.12),
+                0 0 0 3px rgba(51, 65, 85, 0.18);
+        }
+
+        /* Disabled */
+        .toggle input:disabled {
+            cursor: not-allowed;
+        }
+
+        .toggle input:disabled + .track {
+            opacity: 0.55;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .toggle .track,
+            .toggle .thumb {
+                transition: none;
+            }
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: var(--spacing-s);
+            margin-top: var(--spacing-m);
+        }
+
+        @media (max-width: 920px) {
+            .modal-body {
+                padding: var(--spacing-l);
+            }
+            .modal-header {
+                padding: var(--spacing-l);
+            }
+            .modal-grid {
+                grid-template-columns: 1fr;
+            }
+            .domains-scroll {
+                max-height: 360px;
+            }
+        }
+
+        /* Table styles for Review Outcomes */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--colorNeutralBackground1);
+            box-shadow: var(--shadow2);
+            margin-top: var(--spacing-l);
+            border-radius: var(--radiusMedium);
+            overflow: hidden;
+        }
+
+        .clickable-row {
+            cursor: pointer;
+        }
+
+        .clickable-row:hover td {
+            background: var(--colorNeutralBackground2);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: var(--spacing-m);
+            margin-top: var(--spacing-xl);
+        }
+
+        .section-header h3 {
+            margin: 0;
+        }
+
+        .count-pill {
+            font-size: var(--fontSizeSmall);
+            color: var(--colorNeutralForeground2);
+            border: 1px solid var(--colorNeutralStroke2);
+            background: var(--colorNeutralBackground1);
+            border-radius: 999px;
+            padding: 4px 10px;
+        }
+
+        th {
+            background: var(--colorBrandBackground);
+            color: var(--colorBrandForeground);
+            padding: var(--spacing-m) var(--spacing-l);
+            text-align: left;
+            font-weight: var(--fontWeightSemibold);
+            font-size: var(--fontSizeSmall);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: var(--spacing-m) var(--spacing-l);
+            border-bottom: 1px solid var(--colorNeutralStroke1);
+            font-size: var(--fontSizeBase);
+            vertical-align: top;
+        }
+
+        tr:hover {
+            background: var(--colorNeutralBackground2);
+        }
+
+        @media (max-width: 768px) {
+            table {
+                font-size: var(--fontSizeSmall);
+                display: block;
+                overflow-x: auto;
+            }
+            
+            th, td {
+                padding: var(--spacing-s) var(--spacing-m);
+                white-space: nowrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="auth-screen" style="display: flex;">
+        <div class="auth-content">
+            <div class="loading-spinner"></div>
+            <h2>Loading...</h2>
+            <p>Checking authentication</p>
+        </div>
+    </div>
+
+    <!-- Teams Required Screen -->
+    <div id="teamsRequiredScreen" class="auth-screen" style="display: none;">
+        <div class="auth-content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="rgb(51, 65, 85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <h2>Microsoft Teams Required</h2>
+            <p>This app can only be accessed within Microsoft Teams.</p>
+            <p style="font-size: 14px; color: #666;">Please open this app from the Teams desktop or web client.</p>
+        </div>
+    </div>
+
+    <!-- Access Denied Screen -->
+    <div id="accessDeniedScreen" class="auth-screen" style="display: none;">
+        <div class="auth-content">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#ac0027" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+            </svg>
+            <h2>Access Denied</h2>
+            <p>You must be signed in with an <strong>@acsacademy.edu.sg</strong> account.</p>
+            <p style="font-size: 14px; color: #666;">Current account: <span id="deniedEmail">Unknown</span></p>
+        </div>
+    </div>
+
+    <!-- Main App -->
+    <div id="mainApp" class="app-container" style="display: none;">
+        <div class="header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>AP Student Support</h1>
+            </div>
+            <div id="userInfo" style="text-align: right; font-size: var(--fontSizeSmall); opacity: 0.9;"></div>
+        </div>
+
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showView('home')">Home</button>
+            <button class="nav-tab" onclick="showView('refer')" id="referTab">Refer Student</button>
+            <button class="nav-tab" onclick="showView('meeting')" id="meetingTab">Support Meeting</button>
+            <button class="nav-tab" onclick="showView('outcomes')" id="outcomesTab">Review Outcomes</button>
+        </div>
+
+        <!-- Home View -->
+        <div id="homeView" class="view-container active">
+            <div class="main-menu" id="mainMenu">
+                <div class="menu-card menu-card-yellow" onclick="showView('refer')">
+                    <div class="menu-card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M22 12h-6"></path>
+                            <path d="M19 9l3 3-3 3"></path>
+                        </svg>
+                    </div>
+                    <h2>Refer Student</h2>
+                    <p>Submit a new student support referral</p>
+                </div>
+                <div class="menu-card menu-card-blue" onclick="showView('meeting')">
+                    <div class="menu-card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <h2>Student Support Meeting</h2>
+                    <p>Record and manage support meetings</p>
+                </div>
+                <div class="menu-card menu-card-red" onclick="showView('outcomes')">
+                    <div class="menu-card-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                        </svg>
+                    </div>
+                    <h2>Review Outcomes</h2>
+                    <p>View and track student support outcomes</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Refer Student View -->
+        <div id="referView" class="view-container">
+            <!-- Stepper -->
+            <div class="stepper">
+                <div class="step active" id="step1">
+                    <div class="step-number">1</div>
+                    <span class="step-label">Select Students</span>
+                </div>
+                <div class="step-connector" id="connector1"></div>
+                <div class="step" id="step2">
+                    <div class="step-number">2</div>
+                    <span class="step-label">Select Conditions</span>
+                </div>
+                <div class="step-connector" id="connector2"></div>
+                <div class="step" id="step3">
+                    <div class="step-number">3</div>
+                    <span class="step-label">Submit</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Select Students -->
+            <div id="referStep1">
+                <h2>Step 1: Select Students to Refer</h2>
+                <p>First, select a class, then choose the students you want to refer.</p>
+                
+                <!-- Class tabs -->
+                <div class="class-tabs" id="classTabsContainer">
+                    <div class="loading">
+                        <div class="spinner"></div>
+                        Loading classes...
+                    </div>
+                </div>
+
+                <!-- Student list -->
+                <div id="studentListContainer">
+                    <div class="empty-state">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                        </svg>
+                        <p>Select a class to view students</p>
+                    </div>
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn btn-secondary" onclick="showView('home')">Cancel</button>
+                    <button class="btn btn-primary" onclick="goToStep2()" id="nextToStep2Btn" disabled>
+                        Next: Select Conditions
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Select Conditions -->
+            <div id="referStep2" style="display: none;">
+                <h2>Step 2: Select Conditions</h2>
+                <p>For each student, select the relevant conditions grouped by domain.</p>
+
+                <div id="selectedStudentsContainer">
+                    <!-- Selected students with condition checkboxes will be rendered here -->
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn btn-secondary" onclick="goToStep1()">Back</button>
+                    <button class="btn btn-primary" onclick="goToStep3()" id="nextToStep3Btn" disabled>
+                        Next: Review & Submit
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 3: Review & Submit -->
+            <div id="referStep3" style="display: none;">
+                <h2>Step 3: Review & Submit</h2>
+                <p>Review the referrals below and click Submit when ready.</p>
+
+                <div id="reviewContainer">
+                    <!-- Review summary will be rendered here -->
+                </div>
+
+                <div class="action-bar">
+                    <button class="btn btn-secondary" onclick="goToStep2FromReview()">Back</button>
+                    <button class="btn btn-success" onclick="submitReferrals()" id="submitBtn">
+                        Submit Referrals
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Support Meeting View -->
+        <div id="meetingView" class="view-container">
+            <h2>Student Support Meeting</h2>
+            <p>Select a class to view referred students and complete the support meeting plan.</p>
+
+            <div class="class-tabs" id="meetingClassTabsContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading classes...
+                </div>
+            </div>
+
+            <div id="meetingStudentsContainer">
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                    </svg>
+                    <p>Select a class to view students</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Meeting Modal -->
+        <div id="meetingModal" class="modal-overlay" style="display: none;">
+            <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="meetingStudentName">
+                <div class="modal-body">
+                    <div class="modal-grid">
+                        <div class="panel domains-panel">
+                            <div class="student-context">
+                                <div class="student-context-top">
+                                    <div style="min-width: 0;">
+                                        <h2 id="meetingStudentName" class="student-name">Student</h2>
+                                        <div class="student-meta">
+                                            <span class="meta-pill">
+                                                <span class="label">Ref ID</span>
+                                                <span id="meetingStudentRefId">—</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button class="modal-close-btn" onclick="closeMeetingModal()" aria-label="Close">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="domains-section">
+                                <div class="domains-title">
+                                    <h3>Domains & Conditions</h3>
+                                </div>
+                                <div class="domains-scroll">
+                                    <div id="meetingModalDomains" class="domains-empty">Loading…</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <h3>Meeting Plan</h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="meetingGoals">Goals</label>
+                                    <textarea class="form-control" id="meetingGoals" rows="4" placeholder="What do we want to achieve?"></textarea>
+                                    <div class="help-text">Short summary of desired outcomes.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="meetingActionPlan">Action Plan</label>
+                                    <textarea class="form-control" id="meetingActionPlan" rows="5" placeholder="What actions will we take?"></textarea>
+                                    <div class="help-text">Concrete steps, supports, and interventions.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="meetingActionBy">Action by</label>
+                                    <input class="form-control short" id="meetingActionBy" rows="1" placeholder="Who is responsible for which actions?"></input>
+                                    <div class="help-text">Names/roles and responsibilities.</div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="meetingReviewDate">Next review date</label>
+                                    <input class="form-control" id="meetingReviewDate" type="date" />
+                                    <div class="help-text">Set a date to review progress.</div>
+                                </div>
+                            </div>
+
+                            <div class="modal-actions">
+                                <button class="btn btn-secondary" onclick="closeMeetingModal()">Cancel</button>
+                                <button class="btn btn-primary" id="meetingSubmitBtn" onclick="submitMeetingPlan()">Save</button>
+                            </div>
+
+                            <div id="meetingModalStatus" class="status" style="margin-top: var(--spacing-m);"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Review Outcomes View -->
+        <div id="outcomesView" class="view-container">
+            <h2>Review Outcomes</h2>
+            <p>Pending cases require a final outcome. Completed cases are shown below for reference.</p>
+
+            <div class="section-header">
+                <h3>Pending Review</h3>
+                <span class="count-pill" id="pendingCount">0</span>
+            </div>
+            <div id="pendingOutcomesContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading pending cases...
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h3>Completed</h3>
+                <span class="count-pill" id="completedCount">0</span>
+            </div>
+            <div id="completedOutcomesContainer">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Loading completed cases...
+                </div>
+            </div>
+        </div>
+        <!-- Outcomes Modal -->
+        <div id="outcomesModal" class="modal-overlay" style="display: none;">
+            <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="outcomesStudentName">
+                <div class="modal-body">
+                    <div class="modal-grid">
+                        <div class="panel domains-panel">
+                            <div class="student-context">
+                                <div class="student-context-top">
+                                    <div style="min-width: 0;">
+                                        <h2 id="outcomesStudentName" class="student-name">Student</h2>
+                                        <div class="student-meta">
+                                            <span class="meta-pill">
+                                                <span class="label">Ref ID</span>
+                                                <span id="outcomesRefId">—</span>
+                                            </span>
+                                            <span class="meta-pill">
+                                                <span class="label">Review</span>
+                                                <span id="outcomesReviewDatePill">—</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <button class="modal-close-btn" onclick="closeOutcomesModal()" aria-label="Close">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="domains-section">
+                                <div class="domains-title">
+                                    <h3>Domains & Conditions</h3>
+                                </div>
+                                <div id="outcomesDomains" class="domains-empty">Loading…</div>
+
+                                <div class="domains-title">
+                                    <h3>Case Details</h3>
+                                </div>
+                                <div class="domains-scroll">
+                                    <div style="display: grid; gap: var(--spacing-m); margin-bottom: var(--spacing-l);">
+                                        <div>
+                                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); font-weight: var(--fontWeightSemibold); margin-bottom: var(--spacing-xs);">Goals</div>
+                                            <div id="outcomesGoals" class="domains-empty">—</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); font-weight: var(--fontWeightSemibold); margin-bottom: var(--spacing-xs);">Action Plan</div>
+                                            <div id="outcomesActionPlan" class="domains-empty">—</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); font-weight: var(--fontWeightSemibold); margin-bottom: var(--spacing-xs);">Action by</div>
+                                            <div id="outcomesActionBy" class="domains-empty">—</div>
+                                        </div>
+                                        <div>
+                                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); font-weight: var(--fontWeightSemibold); margin-bottom: var(--spacing-xs);">Next review date</div>
+                                            <div id="outcomesReviewDate" class="domains-empty">—</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel">
+                            <div id="outcomesFinalizeSection">
+                                <h3>Finalize Outcome</h3>
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <div class="switch-row">
+                                            <div class="switch-label">
+                                                <strong>Intervention Complete</strong>
+                                            </div>
+                                            <div class="fluent-switch">
+                                                <input 
+                                                    type="checkbox" 
+                                                    id="outcomesInterventionCompleteSwitch" 
+                                                    class="fluent-switch-input" 
+                                                    aria-label="Intervention Complete"
+                                                />
+                                                <label for="outcomesInterventionCompleteSwitch" class="fluent-switch-label">
+                                                    <span class="fluent-switch-slider" aria-hidden="true"></span>
+                                                </label>
+                                            </div>
+                                            <style>
+                                                .fluent-switch {
+                                                    position: relative;
+                                                    display: inline-block;
+                                                    width: 52px;
+                                                    height: 28px;
+                                                }
+                                                .fluent-switch-input {
+                                                    opacity: 0;
+                                                    width: 0;
+                                                    height: 0;
+                                                }
+                                                .fluent-switch-label {
+                                                    position: absolute;
+                                                    cursor: pointer;
+                                                    top: 0; left: 0; right: 0; bottom: 0;
+                                                    background: var(--colorNeutralBackground3, #eee);
+                                                    border-radius: 16px;
+                                                    transition: background 0.3s;
+                                                    border: 1.5px solid var(--colorNeutralStroke2, #c2c6cc);
+                                                }
+                                                .fluent-switch-slider {
+                                                    position: absolute;
+                                                    left: 3px;
+                                                    top: 3px;
+                                                    width: 22px;
+                                                    height: 22px;
+                                                    border-radius: 50%;
+                                                    background: var(--colorNeutralForeground1, #274472);
+                                                    transition: transform 0.25s cubic-bezier(.77,0,.18,1), background 0.25s;
+                                                    box-shadow: 0 1px 3px rgba(30,34,43,0.07);
+                                                }
+                                                .fluent-switch-input:checked + .fluent-switch-label {
+                                                    background: var(--colorBrandBackground, #005cb9);
+                                                    border-color: var(--colorBrandBackground, #005cb9);
+                                                }
+                                                .fluent-switch-input:checked + .fluent-switch-label .fluent-switch-slider {
+                                                    background: var(--colorBrandForegroundInverted, #fff);
+                                                    transform: translateX(24px);
+                                                }
+                                                .fluent-switch-input:focus + .fluent-switch-label {
+                                                    box-shadow: 0 0 0 2px var(--colorBrandBackground, #005cb9)55;
+                                                    outline: 0;
+                                                }
+                                            </style>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="outcomesFinalOutcome">Final Outcome</label>
+                                        <textarea id="outcomesFinalOutcome" class="form-control" rows="6" placeholder="Enter final outcome..."></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="modal-actions">
+                                    <button class="btn btn-secondary" onclick="closeOutcomesModal()">Cancel</button>
+                                    <button class="btn btn-primary" id="outcomesSaveBtn" onclick="saveOutcomeFinalization()">Save</button>
+                                </div>
+                                <div id="outcomesModalStatus" class="status" style="margin-top: var(--spacing-m);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="status" class="status"></div>
+    </div>
+
+    <script>
+        // ============================================================================
+        // CONFIGURATION
+        // ============================================================================
+        const ALLOWED_DOMAIN = '@acsacademy.edu.sg';
+        const IS_LOCAL_DEV = window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.protocol === 'file:';
+
+        // Use existing attendance API for class + student lists
+        const LISTS_API_BASE_URL = 'https://parents.acsacademy.edu.sg/api/attendanceGateway.php';
+
+        // Referral creation (Dataverse write) API
+        // Production target: parents.acsacademy.edu.sg/api/apReferral.php
+        const REFERRAL_API_BASE_URL = 'https://parents.acsacademy.edu.sg/api/apReferral.php';
+
+        // Azure AD Configuration (for reference - actual auth is handled server-side)
+        const AZURE_CONFIG = {
+            clientId: '7d1340e2-9fa9-4a80-8b89-93e5bced6ebc',
+            tenantId: '6dff32de-1cd0-4ada-892b-2298e1f61698'
+        };
+
+        // ============================================================================
+        // DOMAINS AND CONDITIONS DATA
+        // ============================================================================
+        const DOMAINS_AND_CONDITIONS = {
+            "Cognitive": [
+                "Has poor comprehension of material",
+                "Has poor short-term memory for verbal stimuli",
+                "Has poor short-term memory for nonverbal stimuli",
+                "Has limited attention span",
+                "Has difficulty understanding oral directions",
+                "Has difficulty understanding written directions",
+                "Has difficulty following a sequence of directions",
+                "Misunderstands material presented at a fast rate",
+                "Has difficulty recalling story sequences",
+                "Has difficulty understanding teacher when he or she moves around the room",
+                "Has difficulty being adaptable",
+                "Has difficulty reasoning abstractly",
+                "Has difficulty conceptualizing material",
+                "Uses problem-solving strategies inefficiently",
+                "Learns very slowly",
+                "Has poor long-term memory",
+                "Forgets newly learned skills"
+            ],
+            "Language/Academic": [
+                "Has difficulty decoding words",
+                "Has poor reading comprehension",
+                "Has poor expressive language",
+                "Has poor listening comprehension",
+                "Uses gestures instead of words",
+                "Has difficulty rapidly naming objects",
+                "Has difficulty rapidly reading words",
+                "Has speech impairment",
+                "Has difficulty producing rhymes",
+                "Has difficulty recognizing similar phonemes",
+                "Has difficulty arranging phonemes into words",
+                "Has difficulty using verbal coding as an aid in memory",
+                "Has difficulty using verbal coding as an aid in rehearsal",
+                "Has poor grammar",
+                "Has poor math computation skills",
+                "Has limited math problem-solving skills",
+                "Does not retain math facts",
+                "Has poor spelling",
+                "Has fluctuating performance",
+                "Has difficulty writing compositions",
+                "Does not know names of common objects"
+            ],
+            "Perceptual/Motor": [
+                "Has poor auditory perception",
+                "Has poor visual perception",
+                "Has poor tactile discrimination",
+                "Has poor handwriting",
+                "Has clumsy and awkward movements",
+                "Has poor speech communication",
+                "Has difficulty putting objects in correct sequence",
+                "Has difficulty remembering sequence of objects",
+                "Has right-left confusion",
+                "Has poor gross-motor coordination",
+                "Has poor fine-motor coordination",
+                "Moves slowly",
+                "Has slumped posture",
+                "Has rigid, tense posture",
+                "Has atypical, inappropriate posture"
+            ],
+            "Behavioral": [
+                "Avoids doing work in class",
+                "Gives up easily",
+                "Has difficulty beginning tasks on time",
+                "Has difficulty completing tasks on time",
+                "Asks questions constantly",
+                "Is impulsive",
+                "Has trouble starting and continuing tasks",
+                "Has difficulty changing from one assignment to another",
+                "Shifts often to other activities",
+                "Has difficulty working independently",
+                "Has difficulty playing quietly",
+                "Is easily distracted",
+                "Doesn't seem to listen",
+                "Shows aggressive behavior",
+                "Shows disruptive behavior",
+                "Talks excessively",
+                "Interrupts others often",
+                "Speaks out of turn (often blurts out answers)",
+                "Makes comments not related to topic being discussed",
+                "Has difficulty remaining seated",
+                "Fidgets often when seated",
+                "Fails to return on time to class",
+                "Has limited persistence",
+                "Fails to do homework",
+                "Loses homework",
+                "Seeks attention constantly",
+                "Is unorganized",
+                "Uses immature vocabulary",
+                "Is slow to complete tasks",
+                "Behaves inappropriately",
+                "Uses drugs or alcohol",
+                "Hurts others",
+                "Is cruel to animals",
+                "Talks about suicide",
+                "Destroys others' property",
+                "Is out of chair when supposed to be doing work",
+                "Has constant and repetitive behavior",
+                "Speaks slowly",
+                "Shouts or yells for no apparent reason",
+                "Has hallucinations",
+                "Stutters",
+                "Injures self often",
+                "Bites nails",
+                "Bangs head",
+                "Holds breath",
+                "Does not tolerate changes in routine",
+                "Wanders aimlessly around room",
+                "Daydreams",
+                "Is often sleepy or lethargic",
+                "Tires easily",
+                "Tells lies",
+                "Steals",
+                "Has numerous physical complaints",
+                "Is often tardy",
+                "Is frequently absent",
+                "Has poor eye contact",
+                "Requires constant supervision",
+                "Engages in dangerous behaviors",
+                "Has been suspended in the past",
+                "Prefers not to try new activities",
+                "Fails to use free time appropriately"
+            ],
+            "Social": [
+                "Is immature",
+                "Is stubborn",
+                "Has low self-esteem",
+                "Is socially isolated",
+                "Is not popular",
+                "Has difficulty communicating interests",
+                "Has difficulty accepting criticism",
+                "Has limited social perceptiveness",
+                "Gives in to peer pressure",
+                "Is uncooperative",
+                "Has poor skills on playground",
+                "Is overly compliant",
+                "Is selfish",
+                "Seems suspicious of other people",
+                "Refuses to share",
+                "Shows sexually provocative behavior",
+                "Blames others for problems",
+                "Has difficulty seeking help",
+                "Has difficulty accepting help from teacher",
+                "Has difficulty accepting help from peers",
+                "Does not get along with other children",
+                "Does not offer opinions and answers when asked",
+                "Does not enjoy group activities",
+                "Does not show concern for others' feelings and property",
+                "Resolves conflicts by shouting, fighting, or intimidating others",
+                "Has difficulty making constructive contributions during group activities",
+                "Avoids others completely",
+                "Has anger management problems",
+                "Displays inappropriate humor",
+                "Seeks to manipulate others",
+                "Is rigid and opinionated",
+                "Has unusual interest in sensational violence",
+                "Is fascinated with violence-filled entertainment",
+                "Bullies other children",
+                "Is the victim of bullying"
+            ],
+            "Affect/Motivation": [
+                "Is easily frustrated",
+                "Shows anger quickly",
+                "Has limited motivation",
+                "Is often anxious",
+                "Is depressed or unhappy",
+                "Has low interest in schoolwork",
+                "Is self-critical",
+                "Is overexcitable",
+                "Is hyperactive",
+                "Has temper tantrums",
+                "Has unusual fears",
+                "Is easily annoyed",
+                "Frequently cries",
+                "Is tense and fearful",
+                "Seldom shows emotion",
+                "Is shy or timid",
+                "Is upset by changes in routine",
+                "Has wide mood swings",
+                "Appears to feel hopeless",
+                "Has difficulty recognizing that he or she has a problem"
+            ],
+            "Self Care Skills": [
+                "Has poor personal hygiene",
+                "Has disheveled and unclean personal appearance",
+                "Fails to dress appropriately for weather",
+                "Has poor table manners in cafeteria",
+                "Engages in self-stimulating behaviors"
+            ],
+            "Physical Health": [
+                "Has vision problems",
+                "Has hearing problems",
+                "Has dental problems",
+                "Complains of headaches",
+                "Complains of stomach pains",
+                "Complains of fatigue",
+                "Is overweight",
+                "Is underweight",
+                "Complains of loss of appetite",
+                "Has a physical disability (describe: )",
+                "Has a chronic illness (describe: )",
+                "Has other physical health problems (describe: )"
+            ]
+        };
+
+        // ============================================================================
+        // STATE VARIABLES
+        // ============================================================================
+        let isInTeams = false;
+        let isAuthenticated = false;
+        let authChecked = false;
+        let currentUserEmail = null;
+        let currentUserDisplayName = null;
+        let currentUserId = null;
+
+        let classes = [];
+        let students = [];
+        let selectedClass = null;
+        let selectedStudents = {};  // studentId -> student object
+        let studentConditions = {}; // studentId -> { domain -> [conditions] }
+
+        // Meeting state
+        let meetingClasses = [];
+        let meetingSelectedClass = null;
+        let meetingStudents = []; // students in class
+        let meetingStudentLatestCase = {}; // studentId -> case object (latest)
+        let meetingActiveStudent = null; // { student, case }
+
+        // ============================================================================
+        // AUTHENTICATION
+        // ============================================================================
+        async function checkAuthentication() {
+            try {
+                // For local development, skip Teams authentication entirely
+                if (IS_LOCAL_DEV) {
+                    // Local development mode - allow testing without Teams
+                    console.log('Running in local development mode');
+                    isInTeams = false;
+                    isAuthenticated = true;
+                    currentUserEmail = 'test@acsacademy.edu.sg';
+                    currentUserDisplayName = 'Test User';
+                    currentUserId = 'test-user-id';
+                } else if (window.microsoftTeams && window.microsoftTeams.app) {
+                    try {
+                        await microsoftTeams.app.initialize();
+                        isInTeams = true;
+
+                        const context = await microsoftTeams.app.getContext();
+                        const user = context.user || {};
+
+                        const userPrincipalName = user.userPrincipalName || user.loginHint || '';
+                        currentUserDisplayName = user.displayName || userPrincipalName.split('@')[0].replace('.', ' ');
+                        currentUserId = user.id || '';
+
+                        if (userPrincipalName && userPrincipalName.toLowerCase().endsWith(ALLOWED_DOMAIN.toLowerCase())) {
+                            isAuthenticated = true;
+                            currentUserEmail = userPrincipalName;
+                        } else {
+                            isAuthenticated = false;
+                            currentUserEmail = userPrincipalName || null;
+                        }
+                    } catch (teamsError) {
+                        console.log('Teams initialization failed, assuming local development mode');
+                        isInTeams = false;
+                        isAuthenticated = true;
+                        currentUserEmail = 'test@acsacademy.edu.sg';
+                        currentUserDisplayName = 'Test User (Fallback)';
+                        currentUserId = 'test-user-id';
+                    }
+                } else {
+                    // No Teams SDK and not local - still allow for testing
+                    console.log('Running without Teams SDK');
+                    isInTeams = false;
+                    isAuthenticated = true;
+                    currentUserEmail = 'test@acsacademy.edu.sg';
+                    currentUserDisplayName = 'Test User';
+                    currentUserId = 'test-user-id';
+                }
+            } catch (error) {
+                console.error('Authentication check error:', error);
+                // Even on error, allow local development
+                isAuthenticated = true;
+                isInTeams = false;
+                currentUserEmail = 'test@acsacademy.edu.sg';
+                currentUserDisplayName = 'Test User (Error Fallback)';
+                currentUserId = 'test-user-id';
+            }
+
+            authChecked = true;
+            updateAuthUI();
+        }
+
+        function updateAuthUI() {
+            const loadingScreen = document.getElementById('loadingScreen');
+            const teamsRequiredScreen = document.getElementById('teamsRequiredScreen');
+            const accessDeniedScreen = document.getElementById('accessDeniedScreen');
+            const mainApp = document.getElementById('mainApp');
+            
+            if (loadingScreen) loadingScreen.style.display = 'none';
+            if (teamsRequiredScreen) teamsRequiredScreen.style.display = 'none';
+            if (accessDeniedScreen) accessDeniedScreen.style.display = 'none';
+            if (mainApp) mainApp.style.display = 'none';
+            
+            if (!authChecked) {
+                if (loadingScreen) loadingScreen.style.display = 'flex';
+            } else if (!isInTeams && !isAuthenticated) {
+                if (teamsRequiredScreen) teamsRequiredScreen.style.display = 'flex';
+            } else if (!isAuthenticated) {
+                if (accessDeniedScreen) {
+                    accessDeniedScreen.style.display = 'flex';
+                    const deniedEmail = document.getElementById('deniedEmail');
+                    if (deniedEmail && currentUserEmail) {
+                        deniedEmail.textContent = currentUserEmail;
+                    }
+                }
+            } else {
+                if (mainApp) {
+                    mainApp.style.display = 'block';
+                    const userInfo = document.getElementById('userInfo');
+                    if (userInfo && currentUserDisplayName) {
+                        const localIndicator = !isInTeams ? ' <small style="color: #ff6b35; font-weight: normal;">(Local Dev)</small>' : '';
+                        userInfo.innerHTML = `Signed in as<br><strong>${currentUserDisplayName}</strong>${localIndicator}`;
+                    }
+                }
+            }
+        }
+
+        // Run authentication check on load
+        checkAuthentication();
+
+        // ============================================================================
+        // NAVIGATION
+        // ============================================================================
+        function showView(viewName) {
+            document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+            if (viewName === 'home') {
+                document.getElementById('homeView').classList.add('active');
+                document.querySelector('.nav-tab').classList.add('active');
+            } else if (viewName === 'refer') {
+                document.getElementById('referView').classList.add('active');
+                document.getElementById('referTab').classList.add('active');
+                initReferralView();
+            } else if (viewName === 'meeting') {
+                document.getElementById('meetingView').classList.add('active');
+                document.getElementById('meetingTab').classList.add('active');
+                initMeetingView();
+            } else if (viewName === 'outcomes') {
+                document.getElementById('outcomesView').classList.add('active');
+                document.getElementById('outcomesTab').classList.add('active');
+                loadOutcomes();
+            }
+        }
+
+        // ============================================================================
+        // API CALLS
+        // ============================================================================
+        async function apiCall(baseUrl, action, method = 'GET', data = null) {
+            const url = `${baseUrl}?action=${action}`;
+            const options = {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            if (data && method !== 'GET') {
+                options.body = JSON.stringify(data);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const result = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(result.error || 'API request failed');
+                }
+                
+                return result;
+            } catch (error) {
+                console.error('API call error:', error);
+                throw error;
+            }
+        }
+
+        function formatDomainsAndIssuesByDomain(conditionsByDomain) {
+            const lines = [];
+
+            for (const domain of Object.keys(DOMAINS_AND_CONDITIONS)) {
+                const conds = conditionsByDomain?.[domain];
+                if (!Array.isArray(conds) || conds.length === 0) continue;
+
+                lines.push(`${domain}:`);
+                for (const c of conds) {
+                    lines.push(c);
+                }
+                lines.push(''); // blank line between domains
+            }
+
+            return lines.join('\n').trim();
+        }
+
+        function parseDomainsAndIssuesText(text) {
+            // Input is plain text like:
+            // Domain:
+            // Condition
+            // Condition
+            // (blank line)
+            if (!text || typeof text !== 'string') return [];
+
+            const lines = text.split(/\r?\n/).map(l => l.trimEnd());
+            const result = [];
+            let current = null;
+
+            for (const raw of lines) {
+                const line = raw.trim();
+                if (!line) continue;
+
+                if (line.endsWith(':')) {
+                    current = { domain: line.slice(0, -1), conditions: [] };
+                    result.push(current);
+                    continue;
+                }
+                if (!current) {
+                    // If the stored text isn't formatted, treat as a single domain-less list
+                    current = { domain: 'Domains & Issues', conditions: [] };
+                    result.push(current);
+                }
+                current.conditions.push(line);
+            }
+
+            return result;
+        }
+
+        // ============================================================================
+        // REFERRAL VIEW - Step 1: Select Students
+        // ============================================================================
+        function initReferralView() {
+            // Reset to step 1
+            showStep(1);
+            selectedStudents = {};
+            studentConditions = {};
+            loadClasses();
+        }
+
+        async function loadClasses() {
+            const container = document.getElementById('classTabsContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading classes...</div>';
+
+            try {
+                const result = await apiCall(LISTS_API_BASE_URL, 'classes');
+                classes = result.classes || [];
+                renderClassTabs();
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state"><p>Error loading classes: ${error.message}</p></div>`;
+            }
+        }
+
+        function renderClassTabs() {
+            const container = document.getElementById('classTabsContainer');
+            
+            if (classes.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No classes found</p></div>';
+                return;
+            }
+
+            // Sort classes by name
+            classes.sort((a, b) => {
+                const nameA = a.crd88_classid || '';
+                const nameB = b.crd88_classid || '';
+                return nameA.localeCompare(nameB);
+            });
+
+            container.innerHTML = classes.map(cls => `
+                <button class="class-tab ${selectedClass === cls.crd88_classesid ? 'active' : ''}" 
+                        onclick="selectClass('${cls.crd88_classesid}')">
+                    ${cls.crd88_classid || 'Unknown Class'}
+                </button>
+            `).join('');
+        }
+
+        async function selectClass(classId) {
+            selectedClass = classId;
+            renderClassTabs();
+            await loadStudents(classId);
+        }
+
+        async function loadStudents(classId) {
+            const container = document.getElementById('studentListContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading students...</div>';
+
+            try {
+                const result = await apiCall(LISTS_API_BASE_URL, `students&classId=${classId}`);
+                students = result.students || [];
+                renderStudentList();
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state"><p>Error loading students: ${error.message}</p></div>`;
+            }
+        }
+
+        function renderStudentList() {
+            const container = document.getElementById('studentListContainer');
+            
+            if (students.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No students found in this class</p></div>';
+                return;
+            }
+
+            // Sort students by name
+            students.sort((a, b) => {
+                const nameA = a.new_fullname || '';
+                const nameB = b.new_fullname || '';
+                return nameA.localeCompare(nameB);
+            });
+
+            container.innerHTML = `
+                <div class="student-list">
+                    ${students.map(student => {
+                        const isSelected = selectedStudents[student.new_studentsid] !== undefined;
+                        return `
+                            <div class="student-item ${isSelected ? 'selected' : ''}" 
+                                 onclick="toggleStudent('${student.new_studentsid}')">
+                                <input type="checkbox" 
+                                       id="student-${student.new_studentsid}" 
+                                       ${isSelected ? 'checked' : ''}
+                                       onclick="event.stopPropagation(); toggleStudent('${student.new_studentsid}')">
+                                <label for="student-${student.new_studentsid}">
+                                    ${student.new_fullname || 'Unknown'}
+                                    ${student.crd88_indexnumber ? `<br><small style="color: var(--colorNeutralForeground3);">${student.crd88_indexnumber}</small>` : ''}
+                                </label>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        function toggleStudent(studentId) {
+            const student = students.find(s => s.new_studentsid === studentId);
+            if (!student) return;
+
+            if (selectedStudents[studentId]) {
+                delete selectedStudents[studentId];
+                delete studentConditions[studentId];
+            } else {
+                selectedStudents[studentId] = student;
+                studentConditions[studentId] = {};
+            }
+
+            renderStudentList();
+            updateNextButton();
+        }
+
+        function updateNextButton() {
+            const btn = document.getElementById('nextToStep2Btn');
+            const selectedCount = Object.keys(selectedStudents).length;
+            btn.disabled = selectedCount === 0;
+            btn.textContent = selectedCount > 0 
+                ? `Next: Select Conditions (${selectedCount} student${selectedCount > 1 ? 's' : ''})` 
+                : 'Next: Select Conditions';
+        }
+
+        // ============================================================================
+        // REFERRAL VIEW - Step 2: Select Conditions
+        // ============================================================================
+        function goToStep2() {
+            if (Object.keys(selectedStudents).length === 0) {
+                showStatus('Please select at least one student', 'error');
+                return;
+            }
+            showStep(2);
+            renderConditionsSelection();
+        }
+
+        function goToStep1() {
+            showStep(1);
+        }
+
+        function renderConditionsSelection() {
+            const container = document.getElementById('selectedStudentsContainer');
+            
+            container.innerHTML = Object.values(selectedStudents).map(student => `
+                <div class="selected-student-card">
+                    <div class="student-name-column">
+                        <h4>${student.new_fullname || 'Unknown Student'}</h4>
+                        ${student.crd88_indexnumber ? `<p style="margin: var(--spacing-xs) 0 0 0; color: var(--colorNeutralForeground3); font-size: var(--fontSizeSmall);">${student.crd88_indexnumber}</p>` : ''}
+                    </div>
+                    <div class="conditions-column">
+                        ${renderDomainGroups(student.new_studentsid)}
+                    </div>
+                </div>
+            `).join('');
+
+            updateStep3Button();
+        }
+
+        function renderDomainGroups(studentId) {
+            return Object.entries(DOMAINS_AND_CONDITIONS).map(([domain, conditions]) => `
+                <div class="domain-group">
+                    <div class="domain-header collapsed" onclick="toggleDomain(this)">
+                        <span>${domain}</span>
+                        <span class="toggle-icon">▼</span>
+                    </div>
+                    <div class="domain-conditions collapsed">
+                        ${conditions.map((condition, idx) => {
+                            const isChecked = studentConditions[studentId]?.[domain]?.includes(condition);
+                            return `
+                                <div class="condition-item">
+                                    <input type="checkbox" 
+                                           id="cond-${studentId}-${domain}-${idx}"
+                                           ${isChecked ? 'checked' : ''}
+                                           onchange="toggleCondition('${studentId}', '${domain}', '${condition.replace(/'/g, "\\'")}')">
+                                    <label for="cond-${studentId}-${domain}-${idx}">${condition}</label>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleDomain(header) {
+            header.classList.toggle('collapsed');
+            const conditions = header.nextElementSibling;
+            conditions.classList.toggle('collapsed');
+        }
+
+        function toggleCondition(studentId, domain, condition) {
+            if (!studentConditions[studentId]) {
+                studentConditions[studentId] = {};
+            }
+            if (!studentConditions[studentId][domain]) {
+                studentConditions[studentId][domain] = [];
+            }
+
+            const conditions = studentConditions[studentId][domain];
+            const index = conditions.indexOf(condition);
+            
+            if (index > -1) {
+                conditions.splice(index, 1);
+            } else {
+                conditions.push(condition);
+            }
+
+            // Clean up empty arrays
+            if (conditions.length === 0) {
+                delete studentConditions[studentId][domain];
+            }
+            if (Object.keys(studentConditions[studentId]).length === 0) {
+                delete studentConditions[studentId];
+            }
+
+            updateStep3Button();
+        }
+
+        function updateStep3Button() {
+            const btn = document.getElementById('nextToStep3Btn');
+            // Check if at least one student has at least one condition selected
+            const hasConditions = Object.values(studentConditions).some(domains => 
+                Object.values(domains).some(conditions => conditions.length > 0)
+            );
+            btn.disabled = !hasConditions;
+        }
+
+        // ============================================================================
+        // REFERRAL VIEW - Step 3: Review & Submit
+        // ============================================================================
+        function goToStep3() {
+            showStep(3);
+            renderReview();
+        }
+
+        function goToStep2FromReview() {
+            showStep(2);
+        }
+
+        function renderReview() {
+            const container = document.getElementById('reviewContainer');
+            
+            const reviews = Object.entries(selectedStudents).map(([studentId, student]) => {
+                const conditions = studentConditions[studentId] || {};
+                const conditionsList = Object.entries(conditions)
+                    .filter(([_, conds]) => conds.length > 0)
+                    .map(([domain, conds]) => `
+                        <div style="margin-bottom: var(--spacing-s);">
+                            <strong>${domain}:</strong>
+                            <ul style="margin: var(--spacing-xs) 0 0 var(--spacing-l); padding: 0;">
+                                ${conds.map(c => `<li>${c}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `).join('');
+
+                return `
+                    <div class="selected-student-card">
+                        <h4>${student.new_fullname || 'Unknown Student'}</h4>
+                        ${conditionsList || '<p style="color: var(--colorNeutralForeground3);">No conditions selected</p>'}
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = reviews;
+        }
+
+        async function submitReferrals() {
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            try {
+                const referrals = [];
+                
+                for (const [studentId, student] of Object.entries(selectedStudents)) {
+                    const conditions = studentConditions[studentId] || {};
+                    
+                    const domainsAndIssues = formatDomainsAndIssuesByDomain(conditions);
+                    if (domainsAndIssues) {
+                        referrals.push({
+                            studentId: studentId,
+                            studentName: student.new_fullname,
+                            domainsAndIssues,
+                            referredBy: currentUserEmail,
+                            referredByName: currentUserDisplayName
+                        });
+                    }
+                }
+
+                if (referrals.length === 0) {
+                    showStatus('No conditions selected for any student', 'error');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Submit Referrals';
+                    return;
+                }
+
+                const result = await apiCall(REFERRAL_API_BASE_URL, 'submitReferrals', 'POST', { referrals });
+                
+                if (result.success) {
+                    showStatus(`Successfully submitted ${referrals.length} referral(s)!`, 'success');
+                    
+                    // Reset and go back to home
+                    setTimeout(() => {
+                        selectedStudents = {};
+                        studentConditions = {};
+                        showView('home');
+                        hideStatus();
+                    }, 2000);
+                } else {
+                    throw new Error(result.error || 'Failed to submit referrals');
+                }
+            } catch (error) {
+                showStatus(`Error submitting referrals: ${error.message}`, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Referrals';
+            }
+        }
+
+        // ============================================================================
+        // STEPPER UI
+        // ============================================================================
+        function showStep(stepNumber) {
+            // Hide all steps
+            document.getElementById('referStep1').style.display = 'none';
+            document.getElementById('referStep2').style.display = 'none';
+            document.getElementById('referStep3').style.display = 'none';
+
+            // Show selected step
+            document.getElementById(`referStep${stepNumber}`).style.display = 'block';
+
+            // Update stepper UI
+            for (let i = 1; i <= 3; i++) {
+                const step = document.getElementById(`step${i}`);
+                const connector = document.getElementById(`connector${i}`);
+                
+                step.classList.remove('active', 'completed');
+                if (connector) connector.classList.remove('completed');
+                
+                if (i < stepNumber) {
+                    step.classList.add('completed');
+                    if (connector) connector.classList.add('completed');
+                } else if (i === stepNumber) {
+                    step.classList.add('active');
+                }
+            }
+        }
+
+        // ============================================================================
+        // OUTCOMES VIEW
+        // ============================================================================
+        let outcomesPendingCases = [];
+        let outcomesCompletedCases = [];
+        let outcomesActiveCase = null;
+        let outcomesModalMode = 'pending'; // 'pending' | 'completed'
+
+        function getStudentDisplayFromCase(c) {
+            // If expand worked, prefer it; otherwise fall back to GUID
+            const expanded = c?.crd88_new_Students;
+            if (expanded && (expanded.new_fullname || expanded.crd88_indexnumber)) {
+                const name = expanded.new_fullname || 'Unknown';
+                const idx = expanded.crd88_indexnumber ? ` (${expanded.crd88_indexnumber})` : '';
+                return `${name}${idx}`;
+            }
+            return c?._crd88_new_students_value || '-';
+        }
+
+        function formatDateForDisplay(iso) {
+            if (!iso) return '-';
+            const d = new Date(iso);
+            if (Number.isNaN(d.getTime())) return '-';
+            return d.toLocaleDateString();
+        }
+
+        function setSwitchValue(id, valueBoolOrNull) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (valueBoolOrNull === null || valueBoolOrNull === undefined) {
+                el.checked = false;
+                return;
+            }
+            el.checked = !!valueBoolOrNull;
+        }
+
+        function getSwitchValue(id) {
+            const el = document.getElementById(id);
+            if (!el) return null;
+            return !!el.checked;
+        }
+
+        async function loadOutcomes() {
+            const pendingContainer = document.getElementById('pendingOutcomesContainer');
+            const completedContainer = document.getElementById('completedOutcomesContainer');
+            pendingContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Loading pending cases...</div>';
+            completedContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Loading completed cases...</div>';
+
+            try {
+                const [pendingRes, completedRes] = await Promise.all([
+                    apiCall(REFERRAL_API_BASE_URL, 'outcomesPending'),
+                    apiCall(REFERRAL_API_BASE_URL, 'outcomesCompleted')
+                ]);
+
+                outcomesPendingCases = pendingRes.cases || [];
+                outcomesCompletedCases = completedRes.cases || [];
+
+                document.getElementById('pendingCount').textContent = `${outcomesPendingCases.length}`;
+                document.getElementById('completedCount').textContent = `${outcomesCompletedCases.length}`;
+
+                renderOutcomesTables();
+            } catch (error) {
+                pendingContainer.innerHTML = `<div class="empty-state"><p>Error loading pending: ${error.message}</p></div>`;
+                completedContainer.innerHTML = `<div class="empty-state"><p>Error loading completed: ${error.message}</p></div>`;
+            }
+        }
+
+        function renderOutcomesTables() {
+            const pendingContainer = document.getElementById('pendingOutcomesContainer');
+            const completedContainer = document.getElementById('completedOutcomesContainer');
+
+            // Pending
+            if (!outcomesPendingCases.length) {
+                pendingContainer.innerHTML = `<div class="empty-state"><p>No pending cases</p></div>`;
+            } else {
+                pendingContainer.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Review Date</th>
+                                <th>Student</th>
+                                <th>Domains & Issues</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${outcomesPendingCases.map(c => `
+                                <tr class="clickable-row" onclick="openOutcomesModal('${c.crd88_studentsupportcaseid}', 'pending')">
+                                    <td>${formatDateForDisplay(c.crd88_ap_reviewdate)}</td>
+                                    <td>${escapeHtml(getStudentDisplayFromCase(c))}</td>
+                                    <td style="max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        ${escapeHtml((c.crd88_domainsandissues || '').replace(/\\s+/g, ' ').trim() || '-')}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+
+            // Completed
+            if (!outcomesCompletedCases.length) {
+                completedContainer.innerHTML = `<div class="empty-state"><p>No completed cases</p></div>`;
+            } else {
+                completedContainer.innerHTML = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Review Date</th>
+                                <th>Student</th>
+                                <th>Final Outcome</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${outcomesCompletedCases.map(c => `
+                                <tr class="clickable-row" onclick="openOutcomesModal('${c.crd88_studentsupportcaseid}', 'completed')">
+                                    <td>${formatDateForDisplay(c.crd88_ap_reviewdate)}</td>
+                                    <td>${escapeHtml(getStudentDisplayFromCase(c))}</td>
+                                    <td style="max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                        ${escapeHtml((c.crd88_final_outcome || '').replace(/\\s+/g, ' ').trim() || '-')}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            }
+        }
+
+        function findCaseById(caseId) {
+            return outcomesPendingCases.find(c => c.crd88_studentsupportcaseid === caseId) ||
+                outcomesCompletedCases.find(c => c.crd88_studentsupportcaseid === caseId) ||
+                null;
+        }
+
+        function openOutcomesModal(caseId, mode) {
+            const c = findCaseById(caseId);
+            if (!c) return;
+
+            outcomesActiveCase = c;
+            outcomesModalMode = mode;
+
+            // Left column (student context)
+            const studentName = getStudentDisplayFromCase(c);
+            document.getElementById('outcomesStudentName').textContent = studentName || 'Student';
+            document.getElementById('outcomesRefId').textContent = c.crd88_refid || '—';
+            document.getElementById('outcomesReviewDatePill').textContent = formatDateForDisplay(c.crd88_ap_reviewdate);
+
+            // Domains
+            const parsed = parseDomainsAndIssuesText(c.crd88_domainsandissues || '');
+            const domainsDiv = document.getElementById('outcomesDomains');
+            if (!parsed.length) {
+                domainsDiv.textContent = 'No domains/conditions recorded.';
+            } else {
+                domainsDiv.innerHTML = parsed.map(d => `
+                    <div style="margin-bottom: var(--spacing-m);">
+                        <div style="font-weight: var(--fontWeightSemibold); color: var(--colorBrandBackground); margin-bottom: var(--spacing-xs);">${escapeHtml(d.domain)}:</div>
+                        <div style="padding-left: var(--spacing-m);">
+                            ${d.conditions.map(x => `<div style="margin: 2px 0;">${escapeHtml(x)}</div>`).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Quick reference (styled text)
+            document.getElementById('outcomesGoals').textContent = (c.crd88_ap_goals || '').trim() || '—';
+            document.getElementById('outcomesActionPlan').textContent = (c.crd88_ap_actionplan || '').trim() || '—';
+            document.getElementById('outcomesActionBy').textContent = (c.crd88_ap_actionby || '').trim() || '—';
+            document.getElementById('outcomesReviewDate').textContent = formatDateForDisplay(c.crd88_ap_reviewdate);
+
+            // Finalization section
+            const finalize = document.getElementById('outcomesFinalizeSection');
+            const status = document.getElementById('outcomesModalStatus');
+            if (status) { status.className = 'status'; status.textContent = ''; }
+
+            if (mode === 'pending') {
+                finalize.style.display = 'block';
+                // prefill current values (if any)
+                setSwitchValue('outcomesInterventionCompleteSwitch', (typeof c.crd88_final_interventioncomplete === 'boolean') ? c.crd88_final_interventioncomplete : null);
+                document.getElementById('outcomesFinalOutcome').value = c.crd88_final_outcome || '';
+                document.getElementById('outcomesFinalOutcome').disabled = false;
+                document.getElementById('outcomesSaveBtn').disabled = false;
+                document.getElementById('outcomesInterventionCompleteSwitch').disabled = false;
+            } else {
+                finalize.style.display = 'block';
+                // show values but disable edits
+                setSwitchValue('outcomesInterventionCompleteSwitch', (typeof c.crd88_final_interventioncomplete === 'boolean') ? c.crd88_final_interventioncomplete : null);
+                document.getElementById('outcomesFinalOutcome').value = c.crd88_final_outcome || '';
+                document.getElementById('outcomesFinalOutcome').disabled = true;
+                document.getElementById('outcomesSaveBtn').disabled = true;
+                document.getElementById('outcomesInterventionCompleteSwitch').disabled = true;
+            }
+
+            document.getElementById('outcomesModal').style.display = 'block';
+        }
+
+        function closeOutcomesModal() {
+            const modal = document.getElementById('outcomesModal');
+            if (modal) modal.style.display = 'none';
+            outcomesActiveCase = null;
+        }
+
+        async function saveOutcomeFinalization() {
+            if (!outcomesActiveCase?.crd88_studentsupportcaseid) return;
+
+            const btn = document.getElementById('outcomesSaveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const interventionComplete = getSwitchValue('outcomesInterventionCompleteSwitch');
+            const finalOutcome = (document.getElementById('outcomesFinalOutcome').value || '').trim();
+
+            // interventionComplete always boolean with switch
+
+            if (!finalOutcome) {
+                const status = document.getElementById('outcomesModalStatus');
+                status.textContent = 'Please enter a Final Outcome.';
+                status.className = 'status error';
+                btn.disabled = false;
+                btn.textContent = 'Save';
+                return;
+            }
+
+            try {
+                const caseId = outcomesActiveCase.crd88_studentsupportcaseid;
+                const url = `${REFERRAL_API_BASE_URL}?action=updateCase&caseId=${encodeURIComponent(caseId)}`;
+                const payload = {
+                    interventionComplete,
+                    finalOutcome
+                };
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                    body: JSON.stringify(payload)
+                });
+
+                const raw = await response.text();
+                let parsed = null;
+                try { parsed = raw ? JSON.parse(raw) : null; } catch (_) {}
+                if (!response.ok) {
+                    const msg = (parsed && (parsed.error || parsed.message)) ? (parsed.error || parsed.message) : (raw || `HTTP ${response.status}`);
+                    throw new Error(msg);
+                }
+
+                // Update local cache: move from pending -> completed
+                outcomesActiveCase.crd88_final_interventioncomplete = interventionComplete;
+                outcomesActiveCase.crd88_final_outcome = finalOutcome;
+
+                outcomesPendingCases = outcomesPendingCases.filter(c => c.crd88_studentsupportcaseid !== caseId);
+                outcomesCompletedCases = [outcomesActiveCase, ...outcomesCompletedCases];
+
+                document.getElementById('pendingCount').textContent = `${outcomesPendingCases.length}`;
+                document.getElementById('completedCount').textContent = `${outcomesCompletedCases.length}`;
+                renderOutcomesTables();
+
+                const status = document.getElementById('outcomesModalStatus');
+                status.textContent = 'Saved successfully.';
+                status.className = 'status success';
+
+                btn.disabled = false;
+                btn.textContent = 'Save';
+            } catch (e) {
+                const status = document.getElementById('outcomesModalStatus');
+                status.textContent = `Error saving: ${e.message}`;
+                status.className = 'status error';
+                btn.disabled = false;
+                btn.textContent = 'Save';
+            }
+        }
+
+        // ============================================================================
+        // STUDENT SUPPORT MEETING
+        // ============================================================================
+        function initMeetingView() {
+            meetingSelectedClass = null;
+            meetingStudents = [];
+            meetingStudentLatestCase = {};
+            meetingActiveStudent = null;
+            closeMeetingModal();
+            loadMeetingClasses();
+        }
+
+        async function loadMeetingClasses() {
+            const container = document.getElementById('meetingClassTabsContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading classes...</div>';
+
+            try {
+                const result = await apiCall(LISTS_API_BASE_URL, 'classes');
+                meetingClasses = result.classes || [];
+
+                meetingClasses.sort((a, b) => (a.crd88_classid || '').localeCompare(b.crd88_classid || ''));
+
+                if (meetingClasses.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>No classes found</p></div>';
+                    return;
+                }
+
+                container.innerHTML = meetingClasses.map(cls => `
+                    <button class="class-tab ${meetingSelectedClass === cls.crd88_classesid ? 'active' : ''}"
+                            onclick="selectMeetingClass('${cls.crd88_classesid}')">
+                        ${cls.crd88_classid || 'Unknown Class'}
+                    </button>
+                `).join('');
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state"><p>Error loading classes: ${error.message}</p></div>`;
+            }
+        }
+
+        async function selectMeetingClass(classId) {
+            meetingSelectedClass = classId;
+            // re-render active state
+            const container = document.getElementById('meetingClassTabsContainer');
+            container.querySelectorAll('.class-tab').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = container.querySelector(`button[onclick=\"selectMeetingClass('${classId}')\"]`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            await loadMeetingStudents(classId);
+        }
+
+        async function loadMeetingStudents(classId) {
+            const container = document.getElementById('meetingStudentsContainer');
+            container.innerHTML = '<div class="loading"><div class="spinner"></div>Loading students...</div>';
+
+            try {
+                const studentsResult = await apiCall(LISTS_API_BASE_URL, `students&classId=${classId}`);
+                meetingStudents = studentsResult.students || [];
+
+                if (meetingStudents.length === 0) {
+                    container.innerHTML = '<div class="empty-state"><p>No students found in this class</p></div>';
+                    return;
+                }
+
+                meetingStudents.sort((a, b) => (a.new_fullname || '').localeCompare(b.new_fullname || ''));
+
+                // Load latest case for each student (only referrals will have a case)
+                meetingStudentLatestCase = {};
+                const casePromises = meetingStudents.map(async (s) => {
+                    try {
+                        const res = await apiCall(REFERRAL_API_BASE_URL, `latestCaseByStudent&studentId=${s.new_studentsid}`);
+                        if (res?.case) meetingStudentLatestCase[s.new_studentsid] = res.case;
+                    } catch (_) {
+                        // ignore individual failures; student may have no case
+                    }
+                });
+
+                // Render immediately, then update after cases load
+                renderMeetingStudentsList();
+                await Promise.all(casePromises);
+                renderMeetingStudentsList();
+            } catch (error) {
+                container.innerHTML = `<div class="empty-state"><p>Error loading students: ${error.message}</p></div>`;
+            }
+        }
+
+        function renderMeetingStudentsList() {
+            const container = document.getElementById('meetingStudentsContainer');
+
+            if (!meetingStudents || meetingStudents.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>Select a class to view students</p></div>';
+                return;
+            }
+
+            const rows = meetingStudents.map(s => {
+                const c = meetingStudentLatestCase[s.new_studentsid];
+                const hasCase = !!c;
+                const summary = hasCase ? (c.crd88_domainsandissues || '').split(/\r?\n/).slice(0, 4).join(' · ') : '';
+
+                return `
+                    <div class="student-item" style="cursor: ${hasCase ? 'pointer' : 'default'}; opacity: ${hasCase ? '1' : '0.6'};"
+                         ${hasCase ? `onclick=\"openMeetingModal('${s.new_studentsid}')\"` : ''}>
+                        <div style="flex: 1;">
+                            <div style="font-weight: var(--fontWeightSemibold); color: var(--colorNeutralForeground1);">
+                                ${s.new_fullname || 'Unknown'}
+                                ${s.crd88_indexnumber ? `<span style=\"color: var(--colorNeutralForeground3); font-weight: var(--fontWeightRegular);\"> (${s.crd88_indexnumber})</span>` : ''}
+                            </div>
+                            <div style="margin-top: var(--spacing-xs); color: var(--colorNeutralForeground2); font-size: var(--fontSizeSmall); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${hasCase ? (summary || 'Referral found (no details)') : 'No referral found'}
+                            </div>
+                        </div>
+                        <div style="margin-left: var(--spacing-m); color: var(--colorNeutralForeground3); font-size: var(--fontSizeSmall);">
+                            ${hasCase ? 'Open' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = `<div style="display: grid; gap: var(--spacing-s);">${rows}</div>`;
+        }
+
+        function openMeetingModal(studentId) {
+            const student = meetingStudents.find(s => s.new_studentsid === studentId);
+            const supportCase = meetingStudentLatestCase[studentId];
+            if (!student || !supportCase) return;
+
+            meetingActiveStudent = { student, case: supportCase };
+
+            const nameEl = document.getElementById('meetingStudentName');
+            if (nameEl) nameEl.textContent = student.new_fullname || 'Student';
+
+            const refEl = document.getElementById('meetingStudentRefId');
+            if (refEl) refEl.textContent = supportCase.crd88_refid || '—';
+
+            // Domains/conditions display (use stored formatted text)
+            const domainsText = supportCase.crd88_domainsandissues || '';
+            const parsed = parseDomainsAndIssuesText(domainsText);
+            const domainsDiv = document.getElementById('meetingModalDomains');
+
+            if (!parsed.length) {
+                domainsDiv.textContent = 'No domains/conditions recorded for this student.';
+            } else {
+                // Render with simple formatting while keeping copy/paste friendly
+                domainsDiv.innerHTML = parsed.map(d => `
+                    <div style="margin-bottom: var(--spacing-m);">
+                        <div style="font-weight: var(--fontWeightSemibold); color: var(--colorBrandBackground); margin-bottom: var(--spacing-xs);">${d.domain}:</div>
+                        <div style="padding-left: var(--spacing-m);">
+                            ${d.conditions.map(c => `<div style="margin: 2px 0;">${escapeHtml(c)}</div>`).join('')}
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Prefill form if fields exist
+            document.getElementById('meetingGoals').value = supportCase.crd88_ap_goals || '';
+            document.getElementById('meetingActionPlan').value = supportCase.crd88_ap_actionplan || '';
+            document.getElementById('meetingActionBy').value = supportCase.crd88_ap_actionby || '';
+
+            const reviewDate = supportCase.crd88_ap_reviewdate;
+            document.getElementById('meetingReviewDate').value = reviewDate ? toDateInputValue(reviewDate) : '';
+
+            // Clear modal status
+            const modalStatus = document.getElementById('meetingModalStatus');
+            modalStatus.className = 'status';
+            modalStatus.textContent = '';
+
+            document.getElementById('meetingModal').style.display = 'block';
+        }
+
+        function closeMeetingModal() {
+            const modal = document.getElementById('meetingModal');
+            if (modal) modal.style.display = 'none';
+            meetingActiveStudent = null;
+        }
+
+        function toDateInputValue(isoString) {
+            // Dataverse stores ISO like 2000-11-26T00:00:00Z
+            const d = new Date(isoString);
+            if (Number.isNaN(d.getTime())) return '';
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        async function submitMeetingPlan() {
+            if (!meetingActiveStudent?.case?.crd88_studentsupportcaseid) return;
+
+            const btn = document.getElementById('meetingSubmitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            const payload = {
+                goals: document.getElementById('meetingGoals').value || '',
+                actionPlan: document.getElementById('meetingActionPlan').value || '',
+                actionBy: document.getElementById('meetingActionBy').value || '',
+                reviewDate: document.getElementById('meetingReviewDate').value
+                    ? new Date(document.getElementById('meetingReviewDate').value + 'T00:00:00Z').toISOString()
+                    : null
+            };
+
+            // Remove null reviewDate to avoid clearing unintentionally unless user picked a value
+            if (payload.reviewDate === null) delete payload.reviewDate;
+
+            try {
+                const caseId = meetingActiveStudent.case.crd88_studentsupportcaseid;
+                // Avoid CORS preflight by using a "simple" request:
+                // - POST
+                // - Content-Type: text/plain
+                // This still sends JSON that PHP can json_decode from php://input.
+                const url = `${REFERRAL_API_BASE_URL}?action=updateCase&caseId=${encodeURIComponent(caseId)}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+                    body: JSON.stringify(payload)
+                });
+
+                const raw = await response.text();
+                let parsed = null;
+                try { parsed = raw ? JSON.parse(raw) : null; } catch (_) {}
+
+                if (!response.ok) {
+                    const msg = (parsed && (parsed.error || parsed.message)) ? (parsed.error || parsed.message) : (raw || `HTTP ${response.status}`);
+                    throw new Error(msg);
+                }
+
+                // Update cached case + UI
+                meetingActiveStudent.case.crd88_ap_goals = payload.goals;
+                meetingActiveStudent.case.crd88_ap_actionplan = payload.actionPlan;
+                meetingActiveStudent.case.crd88_ap_actionby = payload.actionBy;
+                if (payload.reviewDate) meetingActiveStudent.case.crd88_ap_reviewdate = payload.reviewDate;
+
+                meetingStudentLatestCase[meetingActiveStudent.student.new_studentsid] = meetingActiveStudent.case;
+                renderMeetingStudentsList();
+
+                const modalStatus = document.getElementById('meetingModalStatus');
+                modalStatus.textContent = 'Saved successfully.';
+                modalStatus.className = 'status success';
+
+                btn.textContent = 'Submit';
+                btn.disabled = false;
+            } catch (e) {
+                const modalStatus = document.getElementById('meetingModalStatus');
+                modalStatus.textContent = `Error saving: ${e.message}`;
+                modalStatus.className = 'status error';
+
+                btn.textContent = 'Submit';
+                btn.disabled = false;
+            }
+        }
+
+        // ============================================================================
+        // STATUS MESSAGES
+        // ============================================================================
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        function hideStatus() {
+            const status = document.getElementById('status');
+            status.className = 'status';
+            status.textContent = '';
+        }
+    </script>
+</body>
+</html>
