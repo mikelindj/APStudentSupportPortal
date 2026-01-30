@@ -27,8 +27,8 @@
     {
       "entityId": "ap-student-support",
       "name": "AP Student Support",
-      "contentUrl": "https://<YOUR_AZURE_STATIC_WEB_APPS_HOSTNAME>/index.html",
-      "websiteUrl": "https://<YOUR_AZURE_STATIC_WEB_APPS_HOSTNAME>/index.html",
+      "contentUrl": "https://lemon-desert-0c2bf2710.4.azurestaticapps.net/index.html",
+      "websiteUrl": "https://lemon-desert-0c2bf2710.4.azurestaticapps.net/index.html",
       "scopes": [
         "personal"
       ]

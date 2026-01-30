@@ -1683,9 +1683,6 @@
         // CONFIGURATION
         // ============================================================================
         const ALLOWED_DOMAIN = '@acsacademy.edu.sg';
-        const IS_LOCAL_DEV = window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1' ||
-            window.location.protocol === 'file:';
 
         // Use existing attendance API for class + student lists
         const LISTS_API_BASE_URL = 'https://parents.acsacademy.edu.sg/api/attendanceGateway.php';
@@ -1936,16 +1933,8 @@
         // ============================================================================
         async function checkAuthentication() {
             try {
-                // For local development, skip Teams authentication entirely
-                if (IS_LOCAL_DEV) {
-                    // Local development mode - allow testing without Teams
-                    console.log('Running in local development mode');
-                    isInTeams = false;
-                    isAuthenticated = true;
-                    currentUserEmail = 'test@acsacademy.edu.sg';
-                    currentUserDisplayName = 'Test User';
-                    currentUserId = 'test-user-id';
-                } else if (window.microsoftTeams && window.microsoftTeams.app) {
+                // Teams-first authentication (no localhost/dev bypass)
+                if (window.microsoftTeams && window.microsoftTeams.app) {
                     try {
                         await microsoftTeams.app.initialize();
                         isInTeams = true;
@@ -1965,30 +1954,28 @@
                             currentUserEmail = userPrincipalName || null;
                         }
                     } catch (teamsError) {
-                        console.log('Teams initialization failed, assuming local development mode');
+                        console.log('Teams initialization failed');
                         isInTeams = false;
-                        isAuthenticated = true;
-                        currentUserEmail = 'test@acsacademy.edu.sg';
-                        currentUserDisplayName = 'Test User (Fallback)';
-                        currentUserId = 'test-user-id';
+                        isAuthenticated = false;
+                        currentUserEmail = null;
+                        currentUserDisplayName = null;
+                        currentUserId = null;
                     }
                 } else {
-                    // No Teams SDK and not local - still allow for testing
-                    console.log('Running without Teams SDK');
+                    // Outside Teams: do not allow access
                     isInTeams = false;
-                    isAuthenticated = true;
-                    currentUserEmail = 'test@acsacademy.edu.sg';
-                    currentUserDisplayName = 'Test User';
-                    currentUserId = 'test-user-id';
+                    isAuthenticated = false;
+                    currentUserEmail = null;
+                    currentUserDisplayName = null;
+                    currentUserId = null;
                 }
             } catch (error) {
                 console.error('Authentication check error:', error);
-                // Even on error, allow local development
-                isAuthenticated = true;
+                isAuthenticated = false;
                 isInTeams = false;
-                currentUserEmail = 'test@acsacademy.edu.sg';
-                currentUserDisplayName = 'Test User (Error Fallback)';
-                currentUserId = 'test-user-id';
+                currentUserEmail = null;
+                currentUserDisplayName = null;
+                currentUserId = null;
             }
 
             authChecked = true;
@@ -2023,8 +2010,7 @@
                     mainApp.style.display = 'block';
                     const userInfo = document.getElementById('userInfo');
                     if (userInfo && currentUserDisplayName) {
-                        const localIndicator = !isInTeams ? ' <small style="color: #ff6b35; font-weight: normal;">(Local Dev)</small>' : '';
-                        userInfo.innerHTML = `Signed in as<br><strong>${currentUserDisplayName}</strong>${localIndicator}`;
+                        userInfo.innerHTML = `Signed in as<br><strong>${currentUserDisplayName}</strong>`;
                     }
                 }
             }
