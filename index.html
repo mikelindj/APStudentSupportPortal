@@ -1377,6 +1377,18 @@
                 <h2>Step 2: Select Conditions</h2>
                 <p>For each student, select the relevant conditions grouped by domain.</p>
 
+                <div class="form-group" style="max-width: 520px; margin-bottom: var(--spacing-l);">
+                    <label for="conditionsSearch">Search conditions</label>
+                    <input
+                        id="conditionsSearch"
+                        class="form-control"
+                        type="text"
+                        placeholder="Type to filter (e.g., 'memory', 'anxious', 'homework')"
+                        oninput="setConditionsSearch(this.value)"
+                    />
+                    <div class="help-text">While searching, all domains expand and only matching conditions are shown.</div>
+                </div>
+
                 <div id="selectedStudentsContainer">
                     <!-- Selected students with condition checkboxes will be rendered here -->
                 </div>
@@ -1920,6 +1932,7 @@
         let selectedClass = null;
         let selectedStudents = {};  // studentId -> student object
         let studentConditions = {}; // studentId -> { domain -> [conditions] }
+        let conditionsSearch = '';
 
         // Meeting state
         let meetingClasses = [];
@@ -2278,7 +2291,7 @@
                         ${student.crd88_indexnumber ? `<p style="margin: var(--spacing-xs) 0 0 0; color: var(--colorNeutralForeground3); font-size: var(--fontSizeSmall);">${student.crd88_indexnumber}</p>` : ''}
                     </div>
                     <div class="conditions-column">
-                        ${renderDomainGroups(student.new_studentsid)}
+                        ${renderDomainGroups(student.new_studentsid, conditionsSearch)}
                     </div>
                 </div>
             `).join('');
@@ -2286,29 +2299,55 @@
             updateStep3Button();
         }
 
-        function renderDomainGroups(studentId) {
-            return Object.entries(DOMAINS_AND_CONDITIONS).map(([domain, conditions]) => `
+        function normalizeSearchTerm(term) {
+            return (term || '').trim().toLowerCase();
+        }
+
+        function setConditionsSearch(value) {
+            conditionsSearch = value || '';
+            renderConditionsSelection();
+        }
+
+        function renderDomainGroups(studentId, searchTermRaw) {
+            const searchTerm = normalizeSearchTerm(searchTermRaw);
+            const forceExpand = searchTerm.length > 0;
+
+            return Object.entries(DOMAINS_AND_CONDITIONS).map(([domain, conditions]) => {
+                const filtered = !searchTerm
+                    ? conditions
+                    : conditions.filter(c => c.toLowerCase().includes(searchTerm));
+
+                const headerCollapsedClass = forceExpand ? '' : 'collapsed';
+                const conditionsCollapsedClass = forceExpand ? '' : 'collapsed';
+
+                const conditionsHtml = filtered.length
+                    ? filtered.map((condition) => {
+                        const idx = conditions.indexOf(condition);
+                        const isChecked = studentConditions[studentId]?.[domain]?.includes(condition);
+                        return `
+                            <div class="condition-item">
+                                <input type="checkbox"
+                                       id="cond-${studentId}-${domain}-${idx}"
+                                       ${isChecked ? 'checked' : ''}
+                                       onchange="toggleCondition('${studentId}', '${domain}', '${condition.replace(/'/g, "\\'")}')">
+                                <label for="cond-${studentId}-${domain}-${idx}">${condition}</label>
+                            </div>
+                        `;
+                    }).join('')
+                    : (forceExpand ? `<div style="padding: var(--spacing-s); color: var(--colorNeutralForeground3); font-size: var(--fontSizeSmall);">No matches</div>` : '');
+
+                return `
                 <div class="domain-group">
-                    <div class="domain-header collapsed" onclick="toggleDomain(this)">
+                    <div class="domain-header ${headerCollapsedClass}" onclick="toggleDomain(this)">
                         <span>${domain}</span>
                         <span class="toggle-icon">▼</span>
                     </div>
-                    <div class="domain-conditions collapsed">
-                        ${conditions.map((condition, idx) => {
-                            const isChecked = studentConditions[studentId]?.[domain]?.includes(condition);
-                            return `
-                                <div class="condition-item">
-                                    <input type="checkbox" 
-                                           id="cond-${studentId}-${domain}-${idx}"
-                                           ${isChecked ? 'checked' : ''}
-                                           onchange="toggleCondition('${studentId}', '${domain}', '${condition.replace(/'/g, "\\'")}')">
-                                    <label for="cond-${studentId}-${domain}-${idx}">${condition}</label>
-                                </div>
-                            `;
-                        }).join('')}
+                    <div class="domain-conditions ${conditionsCollapsedClass}">
+                        ${conditionsHtml}
                     </div>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function toggleDomain(header) {
