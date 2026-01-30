@@ -3000,7 +3000,7 @@
             if (strengthsDiv) {
                 const strengths = (supportCase.crd88_strengths || '').trim();
                 strengthsDiv.textContent = strengths || '—';
-                strengthsDiv.className = strengths ? 'readonly-field' : 'readonly-field muted';
+                strengthsDiv.className = strengths ? 'domains-empty' : 'domains-empty';
             }
 
             // Prefill form if fields exist
