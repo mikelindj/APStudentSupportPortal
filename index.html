@@ -2324,51 +2324,108 @@
         function goToStep1() {
             showStep(1);
         }
-
         function renderConditionsSelection() {
             const container = document.getElementById('selectedStudentsContainer');
-            
-            container.innerHTML = Object.values(selectedStudents).map(student => `
-                <div class="selected-student-card">
-                    <div class="student-name-column">
-                        <h4>${student.new_fullname || 'Unknown Student'}</h4>
-                        ${student.crd88_indexnumber ? `<p style="margin: var(--spacing-xs) 0 0 0; color: var(--colorNeutralForeground3); font-size: var(--fontSizeSmall);">${student.crd88_indexnumber}</p>` : ''}
-                    </div>
-                    <div class="conditions-column">
-                        <div class="form-group" style="margin-bottom: var(--spacing-l);">
-                            <label>Any Particular Period Subject</label>
-                            <div style="display:flex; flex-wrap: wrap; gap: var(--spacing-s); margin-top: var(--spacing-xs);">
-                                ${SUBJECT_OPTIONS.map((subj, subjIndex) => {
-                                    const checked = (studentSubjects[student.new_studentsid] || []).includes(subj);
-                                    const id = `subj-${student.new_studentsid}-${subj.replace(/\\s+/g,'-')}`;
-                                    return `
-                                        <label for="${id}" style="display:flex; align-items:center; gap: 8px; padding: 6px 10px; border: 1px solid var(--colorNeutralStroke2); border-radius: 999px; background: ${checked ? 'rgba(16,124,16,0.08)' : 'var(--colorNeutralBackground1)'}; cursor: pointer;">
-                                            <input id="${id}" type="checkbox" ${checked ? 'checked' : ''} onchange="toggleStudentSubjectByIndex('${student.new_studentsid}', ${subjIndex}, this.checked)" />
-                                            <span style="font-size: var(--fontSizeSmall);">${subj}</span>
-                                        </label>
-                                    `;
-                                }).join('')}
-                            </div>
-                            <div class="help-text">Selected subjects will be appended into the <code>Domains &amp; Issues</code> text.</div>
-                        </div>
+            const students = Object.values(selectedStudents);
 
-                        <div class="form-group" style="margin-bottom: var(--spacing-l);">
-                            <label for="strengths-${student.new_studentsid}">Strengths</label>
-                            <textarea
-                                id="strengths-${student.new_studentsid}"
-                                class="form-control short"
-                                rows="2"
-                                placeholder="Enter student strengths..."
-                                oninput="setStudentStrength('${student.new_studentsid}', this.value)"
-                            >${escapeHtml(studentStrengths[student.new_studentsid] || '')}</textarea>
+            if (students.length === 0) {
+                container.innerHTML = '<p>No students selected.</p>';
+                return;
+            }
+
+            container.innerHTML = students.map(student => {
+                const sid = student.new_studentsid;
+                const currentData = studentData[sid] || {};
+                
+                return `
+                <div class="selected-student-card" data-student-id="${sid}">
+                    <!-- Student Identity Info -->
+                    <div class="student-header">
+                        <h4 style="margin:0;">${student.new_fullname || 'Unknown Student'}</h4>
+                        ${student.crd88_indexnumber ? `<p style="margin:2px 0 0 0; color:var(--colorNeutralForeground3); font-size:var(--fontSizeSmall);">${student.crd88_indexnumber}</p>` : ''}
+                    </div>
+
+                    <!-- 1. STRENGTHS (TOP) -->
+                    <div class="form-group">
+                        <label>Strengths</label>
+                        <textarea placeholder="List student strengths..." onchange="updateStudentField('${sid}', 'strengths', this.value)">${currentData.strengths || ''}</textarea>
+                    </div>
+
+                    <!-- 2. DOMAINS AND ISSUES -->
+                    <div class="form-group">
+                        <label>Domains and Issues</label>
+                        <textarea placeholder="Identify primary domains and concerns..." onchange="updateStudentField('${sid}', 'domains', this.value)">${currentData.domains || ''}</textarea>
+                    </div>
+
+                    <!-- 3. PERIOD SUBJECTS -->
+                    <div class="form-group">
+                        <label>Any Particular Period Subject</label>
+                        <div style="display:flex; flex-wrap: wrap; gap: var(--spacing-s); margin-top: var(--spacing-xs);">
+                            ${SUBJECT_OPTIONS.map((subj, subjIndex) => {
+                                const checked = (studentSubjects[sid] || []).includes(subj);
+                                const id = `subj-${sid}-${subj.replace(/\s+/g, '-')}`;
+                                return `
+                                    <label for="${id}" class="subject-chip" style="background: ${checked ? 'rgba(16,124,16,0.08)' : 'var(--colorNeutralBackground1)'};">
+                                        <input id="${id}" type="checkbox" ${checked ? 'checked' : ''} onchange="toggleStudentSubjectByIndex('${sid}', ${subjIndex}, this.checked)" />
+                                        <span style="font-size: var(--fontSizeSmall);">${subj}</span>
+                                    </label>
+                                `;
+                            }).join('')}
                         </div>
-                        ${renderDomainGroups(student.new_studentsid, conditionsSearch)}
+                    </div>
+
+                    <!-- 4. REMAINING FIELDS (Example: Observations) -->
+                    <div class="form-group">
+                        <label>Additional Observations</label>
+                        <textarea placeholder="Any other notes..." onchange="updateStudentField('${sid}', 'observations', this.value)">${currentData.observations || ''}</textarea>
                     </div>
                 </div>
-            `).join('');
-
-            updateStep3Button();
+                `;
+            }).join('');
         }
+        // function renderConditionsSelection() {
+        //     const container = document.getElementById('selectedStudentsContainer');
+            
+        //     container.innerHTML = Object.values(selectedStudents).map(student => `
+        //         <div class="selected-student-card">
+        //             <div class="student-name-column">
+        //                 <h4>${student.new_fullname || 'Unknown Student'}</h4>
+        //                 ${student.crd88_indexnumber ? `<p style="margin: var(--spacing-xs) 0 0 0; color: var(--colorNeutralForeground3); font-size: var(--fontSizeSmall);">${student.crd88_indexnumber}</p>` : ''}
+        //             </div>
+        //             <div class="conditions-column">
+        //                 <div class="form-group" style="margin-bottom: var(--spacing-l);">
+        //                     <label>Any Particular Period Subject</label>
+        //                     <div style="display:flex; flex-wrap: wrap; gap: var(--spacing-s); margin-top: var(--spacing-xs);">
+        //                         ${SUBJECT_OPTIONS.map((subj, subjIndex) => {
+        //                             const checked = (studentSubjects[student.new_studentsid] || []).includes(subj);
+        //                             const id = `subj-${student.new_studentsid}-${subj.replace(/\\s+/g,'-')}`;
+        //                             return `
+        //                                 <label for="${id}" style="display:flex; align-items:center; gap: 8px; padding: 6px 10px; border: 1px solid var(--colorNeutralStroke2); border-radius: 999px; background: ${checked ? 'rgba(16,124,16,0.08)' : 'var(--colorNeutralBackground1)'}; cursor: pointer;">
+        //                                     <input id="${id}" type="checkbox" ${checked ? 'checked' : ''} onchange="toggleStudentSubjectByIndex('${student.new_studentsid}', ${subjIndex}, this.checked)" />
+        //                                     <span style="font-size: var(--fontSizeSmall);">${subj}</span>
+        //                                 </label>
+        //                             `;
+        //                         }).join('')}
+        //                     </div>
+        //                 </div>
+
+        //                 <div class="form-group" style="margin-bottom: var(--spacing-l);">
+        //                     <label for="strengths-${student.new_studentsid}">Strengths</label>
+        //                     <textarea
+        //                         id="strengths-${student.new_studentsid}"
+        //                         class="form-control short"
+        //                         rows="2"
+        //                         placeholder="Enter student strengths..."
+        //                         oninput="setStudentStrength('${student.new_studentsid}', this.value)"
+        //                     >${escapeHtml(studentStrengths[student.new_studentsid] || '')}</textarea>
+        //                 </div>
+        //                 ${renderDomainGroups(student.new_studentsid, conditionsSearch)}
+        //             </div>
+        //         </div>
+        //     `).join('');
+
+        //     updateStep3Button();
+        // }
 
         function setStudentStrength(studentId, value) {
             studentStrengths[studentId] = value || '';
