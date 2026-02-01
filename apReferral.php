@@ -68,6 +68,7 @@ $CASE_GOALS_FIELD = 'crd88_ap_goals';
 $CASE_FINAL_OUTCOME_FIELD = 'crd88_final_outcome';
 $CASE_INTERVENTION_COMPLETE_FIELD = 'crd88_final_interventioncomplete';
 $CASE_STRENGTHS_FIELD = 'crd88_strengths';
+$CASE_MEETING_NOTES_FIELD = 'crd88_ap_meetingnotes';
 
 // Validate configuration
 if (empty($CLIENT_ID) || empty($CLIENT_SECRET) || empty($TENANT_ID)) {
@@ -306,7 +307,7 @@ try {
             
         case 'outcomes':
             // GET /api/apReferral.php?action=outcomes - Get all support cases
-            $select = urlencode("{$CASE_ID_FIELD},{$CASE_REFID_FIELD},{$CASE_DOMAINS_ISSUES_FIELD},{$CASE_STRENGTHS_FIELD},{$CASE_ACTION_PLAN_FIELD},{$CASE_ACTION_BY_FIELD},{$CASE_REVIEW_DATE_FIELD},{$CASE_GOALS_FIELD},{$CASE_FINAL_OUTCOME_FIELD},{$CASE_INTERVENTION_COMPLETE_FIELD},createdon,_{$CASE_STUDENT_FIELD}_value");
+            $select = urlencode("{$CASE_ID_FIELD},{$CASE_REFID_FIELD},{$CASE_DOMAINS_ISSUES_FIELD},{$CASE_STRENGTHS_FIELD},{$CASE_MEETING_NOTES_FIELD},{$CASE_ACTION_PLAN_FIELD},{$CASE_ACTION_BY_FIELD},{$CASE_REVIEW_DATE_FIELD},{$CASE_GOALS_FIELD},{$CASE_FINAL_OUTCOME_FIELD},{$CASE_INTERVENTION_COMPLETE_FIELD},createdon,_{$CASE_STUDENT_FIELD}_value");
             $orderby = urlencode("createdon desc");
             // Try to expand student for display (safe even if frontend ignores it)
             $expand = urlencode("{$CASE_STUDENT_NAV}(\$select={$STUDENT_NAME_FIELD},{$STUDENT_NUMBER_FIELD})");
@@ -330,7 +331,7 @@ try {
             // Pending = final outcome blank/null
             // Only show cases that have a review date set (these move from Meeting -> Review Outcomes)
             $filter = urlencode("(({$CASE_FINAL_OUTCOME_FIELD} eq null or {$CASE_FINAL_OUTCOME_FIELD} eq '') and {$CASE_REVIEW_DATE_FIELD} ne null)");
-            $select = urlencode("{$CASE_ID_FIELD},{$CASE_REFID_FIELD},{$CASE_DOMAINS_ISSUES_FIELD},{$CASE_STRENGTHS_FIELD},{$CASE_ACTION_PLAN_FIELD},{$CASE_ACTION_BY_FIELD},{$CASE_REVIEW_DATE_FIELD},{$CASE_GOALS_FIELD},{$CASE_FINAL_OUTCOME_FIELD},{$CASE_INTERVENTION_COMPLETE_FIELD},createdon,_{$CASE_STUDENT_FIELD}_value");
+            $select = urlencode("{$CASE_ID_FIELD},{$CASE_REFID_FIELD},{$CASE_DOMAINS_ISSUES_FIELD},{$CASE_STRENGTHS_FIELD},{$CASE_MEETING_NOTES_FIELD},{$CASE_ACTION_PLAN_FIELD},{$CASE_ACTION_BY_FIELD},{$CASE_REVIEW_DATE_FIELD},{$CASE_GOALS_FIELD},{$CASE_FINAL_OUTCOME_FIELD},{$CASE_INTERVENTION_COMPLETE_FIELD},createdon,_{$CASE_STUDENT_FIELD}_value");
             $orderby = urlencode("{$CASE_REVIEW_DATE_FIELD} desc");
             $expand = urlencode("{$CASE_STUDENT_NAV}(\$select={$STUDENT_NAME_FIELD},{$STUDENT_NUMBER_FIELD})");
             $url = "{$DATAVERSE_URL}/api/data/v9.2/{$SUPPORT_CASE_TABLE}?\$filter={$filter}&\$select={$select}&\$orderby={$orderby}&\$expand={$expand}";
@@ -353,7 +354,7 @@ try {
             // Completed = final outcome filled (not null/empty)
             // Only show cases that have a review date set
             $filter = urlencode("({$CASE_FINAL_OUTCOME_FIELD} ne null and {$CASE_FINAL_OUTCOME_FIELD} ne '' and {$CASE_REVIEW_DATE_FIELD} ne null)");
-            $select = urlencode("{$CASE_ID_FIELD},{$CASE_REFID_FIELD},{$CASE_DOMAINS_ISSUES_FIELD},{$CASE_STRENGTHS_FIELD},{$CASE_ACTION_PLAN_FIELD},{$CASE_ACTION_BY_FIELD},{$CASE_REVIEW_DATE_FIELD},{$CASE_GOALS_FIELD},{$CASE_FINAL_OUTCOME_FIELD},{$CASE_INTERVENTION_COMPLETE_FIELD},createdon,_{$CASE_STUDENT_FIELD}_value");
+            $select = urlencode("{$CASE_ID_FIELD},{$CASE_REFID_FIELD},{$CASE_DOMAINS_ISSUES_FIELD},{$CASE_STRENGTHS_FIELD},{$CASE_MEETING_NOTES_FIELD},{$CASE_ACTION_PLAN_FIELD},{$CASE_ACTION_BY_FIELD},{$CASE_REVIEW_DATE_FIELD},{$CASE_GOALS_FIELD},{$CASE_FINAL_OUTCOME_FIELD},{$CASE_INTERVENTION_COMPLETE_FIELD},createdon,_{$CASE_STUDENT_FIELD}_value");
             $orderby = urlencode("{$CASE_REVIEW_DATE_FIELD} desc");
             $expand = urlencode("{$CASE_STUDENT_NAV}(\$select={$STUDENT_NAME_FIELD},{$STUDENT_NUMBER_FIELD})");
             $url = "{$DATAVERSE_URL}/api/data/v9.2/{$SUPPORT_CASE_TABLE}?\$filter={$filter}&\$select={$select}&\$orderby={$orderby}&\$expand={$expand}";
@@ -381,7 +382,7 @@ try {
             }
 
             $filter = urlencode("_{$CASE_STUDENT_FIELD}_value eq {$studentId}");
-            $select = urlencode("{$CASE_ID_FIELD},{$CASE_REFID_FIELD},{$CASE_DOMAINS_ISSUES_FIELD},{$CASE_STRENGTHS_FIELD},{$CASE_ACTION_PLAN_FIELD},{$CASE_ACTION_BY_FIELD},{$CASE_REVIEW_DATE_FIELD},{$CASE_GOALS_FIELD},{$CASE_FINAL_OUTCOME_FIELD},{$CASE_INTERVENTION_COMPLETE_FIELD},createdon,_{$CASE_STUDENT_FIELD}_value");
+            $select = urlencode("{$CASE_ID_FIELD},{$CASE_REFID_FIELD},{$CASE_DOMAINS_ISSUES_FIELD},{$CASE_STRENGTHS_FIELD},{$CASE_MEETING_NOTES_FIELD},{$CASE_ACTION_PLAN_FIELD},{$CASE_ACTION_BY_FIELD},{$CASE_REVIEW_DATE_FIELD},{$CASE_GOALS_FIELD},{$CASE_FINAL_OUTCOME_FIELD},{$CASE_INTERVENTION_COMPLETE_FIELD},createdon,_{$CASE_STUDENT_FIELD}_value");
             $orderby = urlencode("createdon desc");
             $top = 1;
             $url = "{$DATAVERSE_URL}/api/data/v9.2/{$SUPPORT_CASE_TABLE}?\$filter={$filter}&\$select={$select}&\$orderby={$orderby}&\$top={$top}";
@@ -431,7 +432,8 @@ try {
                 'finalOutcome' => $CASE_FINAL_OUTCOME_FIELD,
                 'interventionComplete' => $CASE_INTERVENTION_COMPLETE_FIELD,
                 'domainsAndIssues' => $CASE_DOMAINS_ISSUES_FIELD,
-                'strengths' => $CASE_STRENGTHS_FIELD
+                'strengths' => $CASE_STRENGTHS_FIELD,
+                'meetingNotes' => $CASE_MEETING_NOTES_FIELD
             ];
             
             foreach ($allowedFields as $inputKey => $dataverseField) {
