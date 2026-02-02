@@ -57,6 +57,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // ============================================================================
+// BASIC API KEY GATE (simple shared secret via query param)
+// - Set AP_REFERRAL_API_KEY (or AP_API_KEY) on the server.
+// - Clients must call: apReferral.php?...&key=YOUR_KEY
+// NOTE: This is "basic gating" only; the key is visible in browser clients.
+// ============================================================================
+$API_KEY_REQUIRED = getenv('AP_REFERRAL_API_KEY') ?: getenv('AP_API_KEY') ?: null;
+if (!empty($API_KEY_REQUIRED)) {
+    $provided = $_GET['key'] ?? '';
+    if (!$provided || !hash_equals((string)$API_KEY_REQUIRED, (string)$provided)) {
+        http_response_code(401);
+        echo json_encode(['error' => 'Unauthorized']);
+        exit;
+    }
+}
+
+// ============================================================================
 // AZURE AD CONFIGURATION - Load from environment variables
 // ============================================================================
 $CLIENT_ID = getenv('AZURE_CLIENT_ID2');
