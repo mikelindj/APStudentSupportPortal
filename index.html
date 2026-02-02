@@ -1004,6 +1004,148 @@
             color: rgb(51, 65, 85);
         }
 
+        /* Meeting modal: Goal-first UI */
+        .meeting-plan-panel {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .icon-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid var(--colorNeutralStroke2);
+            background: var(--colorNeutralBackground1);
+            color: var(--colorNeutralForeground1);
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .icon-btn:hover {
+            background: var(--colorNeutralBackground2);
+            box-shadow: var(--shadow2);
+        }
+
+        .icon-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .goals-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--spacing-s);
+            margin-top: var(--spacing-l);
+            margin-bottom: var(--spacing-s);
+        }
+
+        .goals-table {
+            display: grid;
+            gap: 0;
+            border: 1px solid var(--colorNeutralStroke2);
+            border-radius: 12px;
+            overflow: hidden;
+            background: var(--colorNeutralBackground1);
+        }
+
+        .goals-row {
+            display: grid;
+            grid-template-columns: 1fr 92px;
+            gap: var(--spacing-s);
+            align-items: center;
+            padding: 10px 10px;
+            border-top: 1px solid var(--colorNeutralStroke2);
+        }
+
+        .goals-row:first-child {
+            border-top: none;
+        }
+
+        .goals-row-header {
+            background: var(--colorNeutralBackground2);
+            font-size: var(--fontSizeSmall);
+            font-weight: var(--fontWeightSemibold);
+            color: var(--colorNeutralForeground2);
+        }
+
+        .goals-row-empty {
+            background: var(--colorNeutralBackground1);
+        }
+
+        .slide-panel {
+            position: absolute;
+            inset: 0;
+            background: var(--colorNeutralBackground2);
+            border-left: 1px solid var(--colorNeutralStroke2);
+            padding: var(--spacing-l);
+            transform: translateX(104%);
+            transition: transform 0.22s ease;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-m);
+            overflow: hidden;
+        }
+
+        .slide-panel.open {
+            transform: translateX(0);
+        }
+
+        .slide-panel-header {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-s);
+        }
+
+        .actionplans-table {
+            display: grid;
+            border: 1px solid var(--colorNeutralStroke2);
+            border-radius: 12px;
+            /* Make the action plans LIST scroll (not the whole slide panel) */
+            min-height: 0;
+            overflow-y: auto;
+            overflow-x: hidden;
+            background: var(--colorNeutralBackground1);
+        }
+
+        .ap-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--spacing-s);
+            align-items: center;
+            /* This drives the "cell padding" you're seeing */
+            padding: 6px 8px;
+            border-top: 1px solid var(--colorNeutralStroke2);
+        }
+
+        .ap-detail {
+            grid-column: 1 / 4; /* span 3 columns */
+        }
+
+        .ap-detail textarea.form-control {
+            min-height: 88px;
+        }
+
+        .ap-row:first-child {
+            border-top: none;
+        }
+
+        .ap-row-header {
+            background: var(--colorNeutralBackground2);
+            font-size: var(--fontSizeSmall);
+            font-weight: var(--fontWeightSemibold);
+            color: var(--colorNeutralForeground2);
+            padding: 8px 10px;
+        }
+
+        .ap-row-empty {
+            background: var(--colorNeutralBackground1);
+        }
+
         /* Read-only fields (quick reference) */
         .readonly-field {
             background: var(--colorNeutralBackground1);
@@ -1469,52 +1611,90 @@
                             </div>
                             <div class="domains-section">
                                 <div class="domains-title">
-                                    <h3>Domains & Conditions</h3>
+                                    <h3>Strengths</h3>
+                                </div>
+                                <div id="meetingModalStrengths" class="domains-empty">—</div>
+
+                                <div class="domains-title" style="margin-top: var(--spacing-l);">
+                                    <h3>Subjects</h3>
+                                </div>
+                                <div id="meetingModalSubjects" class="domains-empty">—</div>
+
+                                <div class="domains-title" style="margin-top: var(--spacing-l);">
+                                    <h3>Conditions &amp; Issues</h3>
                                 </div>
                                 <div class="domains-scroll">
                                     <div id="meetingModalDomains" class="domains-empty">Loading…</div>
                                 </div>
-
-                                <div class="domains-title" style="margin-top: var(--spacing-l);">
-                                    <h3>Strengths</h3>
-                                </div>
-                                <div id="meetingModalStrengths" class="domains-empty">—</div>
                             </div>
                         </div>
 
-                        <div class="panel">
-                            <h3>Meeting Plan</h3>
+                        <div class="panel meeting-plan-panel">
+                            <div class="meeting-plan-header">
+                                <h3 style="margin: 0;">Meeting Notes</h3>
+                            </div>
+
                             <div class="form-grid">
                                 <div class="form-group">
-                                    <label for="meetingGoals">Goals</label>
-                                    <textarea class="form-control" id="meetingGoals" rows="4" placeholder="What do we want to achieve?"></textarea>
-                                    <div class="help-text">Short summary of desired outcomes.</div>
+                                    <label for="meetingNotes">Meeting Notes</label>
+                                    <textarea class="form-control" id="meetingNotes" rows="5" placeholder="Notes from the meeting..."></textarea>
                                 </div>
-                                <div class="form-group">
-                                    <label for="meetingActionPlan">Action Plan</label>
-                                    <textarea class="form-control" id="meetingActionPlan" rows="5" placeholder="What actions will we take?"></textarea>
-                                    <div class="help-text">Concrete steps, supports, and interventions.</div>
+                            </div>
+
+                            <div class="goals-header">
+                                <h3 style="margin: 0;">Goals</h3>
+                                <button class="icon-btn" type="button" onclick="addMeetingGoalRow()" aria-label="Add goal" title="Add goal">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="goals-table">
+                                <div class="goals-row goals-row-header">
+                                    <div>Goal</div>
+                                    <div style="text-align:right;">Action Plans</div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="meetingActionBy">Action by</label>
-                                    <input class="form-control short" id="meetingActionBy" rows="1" placeholder="Who is responsible for which actions?"></input>
-                                    <div class="help-text">Names/roles and responsibilities.</div>
+                                <div id="meetingGoalsTableBody">
+                                    <!-- goal rows rendered by JS -->
                                 </div>
-                                <div class="form-group">
-                                    <label for="meetingNotes">Additional Context</label>
-                                    <textarea class="form-control" id="meetingNotes" rows="4" placeholder="Any additional context for this meeting..."></textarea>
-                                    <div class="help-text">Saves to Dataverse field <code>crd88_ap_meetingnotes</code>.</div>
+                            </div>
+
+                            <!-- Slide-in Action Plans panel (per Goal) -->
+                            <div id="meetingGoalActionPanel" class="slide-panel" aria-hidden="true">
+                                <div class="slide-panel-header">
+                                    <button class="icon-btn" type="button" onclick="closeGoalActionPanel()" aria-label="Back to goals" title="Back">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                    </button>
+                                    <div style="min-width:0;">
+                                        <div style="font-weight: var(--fontWeightSemibold);">Goal</div>
+                                        <div id="meetingActiveGoalTitle" style="color: var(--colorNeutralForeground2); font-size: var(--fontSizeSmall); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div>
+                                    </div>
+                                    <div style="flex:1;"></div>
+                                    <button class="icon-btn" type="button" onclick="addMeetingActionPlanRow()" aria-label="Add action plan" title="Add action plan">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                                        </svg>
+                                    </button>
                                 </div>
-                                <div class="form-group">
-                                    <label for="meetingReviewDate">Next review date</label>
-                                    <input class="form-control" id="meetingReviewDate" type="date" />
-                                    <div class="help-text">Set a date to review progress.</div>
+
+                                <div class="actionplans-table">
+                                    <div class="ap-row ap-row-header">
+                                        <div style="grid-column: 1 / -1;">Action Plans</div>
+                                    </div>
+                                    <div id="meetingActionPlansTableBody">
+                                        <!-- action plan rows rendered by JS -->
+                                    </div>
                                 </div>
                             </div>
 
                             <div class="modal-actions">
                                 <button class="btn btn-secondary" onclick="closeMeetingModal()">Cancel</button>
-                                <button class="btn btn-primary" id="meetingSubmitBtn" onclick="submitMeetingPlan()">Save</button>
+                                <button class="btn btn-primary" id="meetingSubmitBtn" onclick="submitMeetingPlan()">Save Notes</button>
                             </div>
 
                             <div id="meetingModalStatus" class="status" style="margin-top: var(--spacing-m);"></div>
@@ -1949,7 +2129,8 @@
         let studentConditions = {}; // studentId -> { domain -> [conditions] }
         let conditionsSearch = '';
         let studentStrengths = {}; // studentId -> string
-        let studentSubjects = {}; // studentId -> string[]
+        let studentPreferredSubjects = {}; // studentId -> string[]
+        let studentTriggerSubjects = {}; // studentId -> string[]
 
         const SUBJECT_OPTIONS = [
             'English',
@@ -1969,59 +2150,69 @@
         let meetingStudents = []; // students in class
         let meetingStudentLatestCase = {}; // studentId -> case object (latest)
         let meetingActiveStudent = null; // { student, case }
+        let meetingGoalsState = []; // [{ id, text }]
+        let meetingActionPlansState = {}; // goalId -> [{ id, actionPlanDetails, actionBy, reviewDate, status }]
+        let meetingActiveGoalId = null;
 
         // ============================================================================
         // AUTHENTICATION
         // ============================================================================
         async function checkAuthentication() {
             try {
-                // Teams-first authentication (no localhost/dev bypass)
-                if (window.microsoftTeams && window.microsoftTeams.app) {
+                const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+                // 1. Priority: Local Development Bypass
+                if (isLocalhost) {
+                    console.info('🛠️ Localhost detected: Bypassing Teams Auth');
+                    isInTeams = false;
+                    isAuthenticated = true; 
+                    currentUserEmail = 'dev@' + ALLOWED_DOMAIN;
+                    currentUserDisplayName = 'Local Dev User';
+                    currentUserId = 'dev-123';
+                } 
+                // 2. Secondary: Actual Teams Environment
+                else if (window.microsoftTeams && window.microsoftTeams.app) {
                     try {
                         await microsoftTeams.app.initialize();
-                        isInTeams = true;
-
                         const context = await microsoftTeams.app.getContext();
+                        
+                        // If we reach here, we are truly inside a Teams client
+                        isInTeams = true;
                         const user = context.user || {};
+                        const upn = user.userPrincipalName || user.loginHint || '';
 
-                        const userPrincipalName = user.userPrincipalName || user.loginHint || '';
-                        currentUserDisplayName = user.displayName || userPrincipalName.split('@')[0].replace('.', ' ');
-                        currentUserId = user.id || '';
-
-                        if (userPrincipalName && userPrincipalName.toLowerCase().endsWith(ALLOWED_DOMAIN.toLowerCase())) {
+                        if (upn.toLowerCase().endsWith(ALLOWED_DOMAIN.toLowerCase())) {
                             isAuthenticated = true;
-                            currentUserEmail = userPrincipalName;
+                            currentUserEmail = upn;
+                            currentUserDisplayName = user.displayName || upn.split('@')[0];
+                            currentUserId = user.id || '';
                         } else {
                             isAuthenticated = false;
-                            currentUserEmail = userPrincipalName || null;
                         }
                     } catch (teamsError) {
-                        console.log('Teams initialization failed');
-                        isInTeams = false;
-                        isAuthenticated = false;
-                        currentUserEmail = null;
-                        currentUserDisplayName = null;
-                        currentUserId = null;
+                        console.warn('Teams SDK present but initialization failed. Likely a standard browser.');
+                        setUnauthenticated();
                     }
-                } else {
-                    // Outside Teams: do not allow access
-                    isInTeams = false;
-                    isAuthenticated = false;
-                    currentUserEmail = null;
-                    currentUserDisplayName = null;
-                    currentUserId = null;
+                } 
+                // 3. Final Fallback: Public Web
+                else {
+                    setUnauthenticated();
                 }
             } catch (error) {
-                console.error('Authentication check error:', error);
-                isAuthenticated = false;
-                isInTeams = false;
-                currentUserEmail = null;
-                currentUserDisplayName = null;
-                currentUserId = null;
+                console.error('Auth Error:', error);
+                setUnauthenticated();
             }
 
             authChecked = true;
             updateAuthUI();
+        }
+
+        function setUnauthenticated() {
+            isInTeams = false;
+            isAuthenticated = false;
+            currentUserEmail = null;
+            currentUserDisplayName = null;
+            currentUserId = null;
         }
 
         function updateAuthUI() {
@@ -2091,41 +2282,39 @@
         // ============================================================================
         async function apiCall(baseUrl, action, method = 'GET', data = null) {
             const url = `${baseUrl}?action=${action}`;
-            const options = {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            };
+            const options = { method: method, headers: {} };
 
-            if (data && method !== 'GET') {
-                options.body = JSON.stringify(data);
+            // IMPORTANT (CORS): Avoid preflight by using a "simple request" for POST/PATCH/DELETE.
+            // - method: GET/POST are simple; PATCH triggers preflight in many browsers.
+            // - header: Content-Type must be text/plain (or form-encoded/multipart) to stay simple.
+            // We send JSON as text/plain; PHP can still json_decode(php://input).
+            if (method !== 'GET') {
+                options.headers['Content-Type'] = 'text/plain;charset=UTF-8';
+                options.body = JSON.stringify(data || {});
             }
 
             try {
                 const response = await fetch(url, options);
-                const result = await response.json();
+                const raw = await response.text();
+                let result = null;
+                try { result = raw ? JSON.parse(raw) : null; } catch (_) { result = null; }
                 
                 if (!response.ok) {
-                    throw new Error(result.error || 'API request failed');
+                    const msg = (result && (result.error || result.message))
+                        ? (result.error || result.message)
+                        : (raw || `API request failed (HTTP ${response.status})`);
+                    throw new Error(msg);
                 }
                 
-                return result;
+                return result || {};
             } catch (error) {
                 console.error('API call error:', error);
                 throw error;
             }
         }
 
-        function formatDomainsAndIssuesByDomain(conditionsByDomain, subjects = []) {
+        function formatDomainsAndIssuesByDomain(conditionsByDomain) {
             const lines = [];
-
-            const subjList = Array.isArray(subjects) ? subjects.filter(Boolean) : [];
-            if (subjList.length) {
-                lines.push('Any Particular Period Subject:');
-                for (const s of subjList) lines.push(s);
-                lines.push('');
-            }
 
             for (const domain of Object.keys(DOMAINS_AND_CONDITIONS)) {
                 const conds = conditionsByDomain?.[domain];
@@ -2182,6 +2371,8 @@
             selectedStudents = {};
             studentConditions = {};
             studentStrengths = {};
+            studentPreferredSubjects = {};
+            studentTriggerSubjects = {};
             conditionsSearch = '';
             const searchEl = document.getElementById('conditionsSearch');
             if (searchEl) searchEl.value = '';
@@ -2288,12 +2479,14 @@
                 delete selectedStudents[studentId];
                 delete studentConditions[studentId];
                 delete studentStrengths[studentId];
-                delete studentSubjects[studentId];
+                delete studentPreferredSubjects[studentId];
+                delete studentTriggerSubjects[studentId];
             } else {
                 selectedStudents[studentId] = student;
                 studentConditions[studentId] = {};
                 studentStrengths[studentId] = '';
-                studentSubjects[studentId] = [];
+                studentPreferredSubjects[studentId] = [];
+                studentTriggerSubjects[studentId] = [];
             }
 
             renderStudentList();
@@ -2348,14 +2541,14 @@
                         </div>
 
                         <div class="form-group" style="margin-bottom: var(--spacing-l);">
-                            <label>Any Particular Period Subject</label>
+                            <label>Preferred Subjects</label>
                             <div style="display:flex; flex-wrap: wrap; gap: var(--spacing-s); margin-top: var(--spacing-xs);">
                                 ${SUBJECT_OPTIONS.map((subj, subjIndex) => {
-                                    const checked = (studentSubjects[student.new_studentsid] || []).includes(subj);
-                                    const id = `subj-${student.new_studentsid}-${subj.replace(/\\s+/g,'-')}`;
+                                    const checked = (studentPreferredSubjects[student.new_studentsid] || []).includes(subj);
+                                    const id = `prefsubj-${student.new_studentsid}-${subj.replace(/\\s+/g,'-')}`;
                                     return `
                                         <label for="${id}" style="display:flex; align-items:center; gap: 8px; padding: 6px 10px; border: 1px solid var(--colorNeutralStroke2); border-radius: 999px; background: ${checked ? 'rgba(16,124,16,0.08)' : 'var(--colorNeutralBackground1)'}; cursor: pointer;">
-                                            <input id="${id}" type="checkbox" ${checked ? 'checked' : ''} onchange="toggleStudentSubjectByIndex('${student.new_studentsid}', ${subjIndex}, this.checked)" />
+                                            <input id="${id}" type="checkbox" ${checked ? 'checked' : ''} onchange="toggleStudentPreferredSubjectByIndex('${student.new_studentsid}', ${subjIndex}, this.checked)" />
                                             <span style="font-size: var(--fontSizeSmall);">${subj}</span>
                                         </label>
                                     `;
@@ -2363,7 +2556,26 @@
                             </div>
                         </div>
 
-                        ${renderDomainGroups(student.new_studentsid, conditionsSearch)}
+                        <div class="form-group" style="margin-bottom: var(--spacing-l);">
+                            <label>Trigger Subjects</label>
+                            <div style="display:flex; flex-wrap: wrap; gap: var(--spacing-s); margin-top: var(--spacing-xs);">
+                                ${SUBJECT_OPTIONS.map((subj, subjIndex) => {
+                                    const checked = (studentTriggerSubjects[student.new_studentsid] || []).includes(subj);
+                                    const id = `trigsubj-${student.new_studentsid}-${subj.replace(/\\s+/g,'-')}`;
+                                    return `
+                                        <label for="${id}" style="display:flex; align-items:center; gap: 8px; padding: 6px 10px; border: 1px solid var(--colorNeutralStroke2); border-radius: 999px; background: ${checked ? 'rgba(196,43,28,0.08)' : 'var(--colorNeutralBackground1)'}; cursor: pointer;">
+                                            <input id="${id}" type="checkbox" ${checked ? 'checked' : ''} onchange="toggleStudentTriggerSubjectByIndex('${student.new_studentsid}', ${subjIndex}, this.checked)" />
+                                            <span style="font-size: var(--fontSizeSmall);">${subj}</span>
+                                        </label>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Domains &amp; Issues</label>
+                            ${renderDomainGroups(student.new_studentsid, conditionsSearch)}
+                        </div>
                     </div>
                 </div>
             `).join('');
@@ -2375,18 +2587,32 @@
             studentStrengths[studentId] = value || '';
         }
 
-        function toggleStudentSubjectByIndex(studentId, subjectIndex, isChecked) {
+        function toggleStudentPreferredSubjectByIndex(studentId, subjectIndex, isChecked) {
             const subject = SUBJECT_OPTIONS[subjectIndex];
             if (!subject) return;
 
-            const current = Array.isArray(studentSubjects[studentId]) ? studentSubjects[studentId] : [];
+            const current = Array.isArray(studentPreferredSubjects[studentId]) ? studentPreferredSubjects[studentId] : [];
             if (isChecked) {
                 if (!current.includes(subject)) current.push(subject);
             } else {
-                studentSubjects[studentId] = current.filter(s => s !== subject);
+                studentPreferredSubjects[studentId] = current.filter(s => s !== subject);
                 return;
             }
-            studentSubjects[studentId] = current;
+            studentPreferredSubjects[studentId] = current;
+        }
+
+        function toggleStudentTriggerSubjectByIndex(studentId, subjectIndex, isChecked) {
+            const subject = SUBJECT_OPTIONS[subjectIndex];
+            if (!subject) return;
+
+            const current = Array.isArray(studentTriggerSubjects[studentId]) ? studentTriggerSubjects[studentId] : [];
+            if (isChecked) {
+                if (!current.includes(subject)) current.push(subject);
+            } else {
+                studentTriggerSubjects[studentId] = current.filter(s => s !== subject);
+                return;
+            }
+            studentTriggerSubjects[studentId] = current;
         }
 
         function normalizeSearchTerm(term) {
@@ -2501,6 +2727,8 @@
             const reviews = Object.entries(selectedStudents).map(([studentId, student]) => {
                 const conditions = studentConditions[studentId] || {};
                 const strengths = (studentStrengths[studentId] || '').trim();
+                const preferredSubjects = Array.isArray(studentPreferredSubjects[studentId]) ? studentPreferredSubjects[studentId].filter(Boolean) : [];
+                const triggerSubjects = Array.isArray(studentTriggerSubjects[studentId]) ? studentTriggerSubjects[studentId].filter(Boolean) : [];
                 const conditionsList = Object.entries(conditions)
                     .filter(([_, conds]) => conds.length > 0)
                     .map(([domain, conds]) => `
@@ -2514,14 +2742,35 @@
 
                 return `
                     <div class="selected-student-card">
-                        <h4>${student.new_fullname || 'Unknown Student'}</h4>
-                        <div style="margin: var(--spacing-s) 0 var(--spacing-m) 0;">
+                        <h4 style="margin-right: var(--spacing-xxl);">${student.new_fullname || 'Unknown Student'}</h4>
+
+                        <div style="margin: var(--spacing-s) 0;">
                             <strong>Strengths:</strong>
-                            <div style="white-space: pre-wrap; color: var(--colorNeutralForeground2); margin-top: var(--spacing-xs);">
+                            <div style="margin-top: var(--spacing-xs);">
                                 ${strengths ? escapeHtml(strengths) : '<span style="color: var(--colorNeutralForeground3);">—</span>'}
                             </div>
                         </div>
-                        ${conditionsList || '<p style="color: var(--colorNeutralForeground3);">No conditions selected</p>'}
+
+                        <div style="margin: var(--spacing-s) 0;">
+                            <strong>Preferred Subjects:</strong>
+                            <div style="margin-top: var(--spacing-xs); color: ${preferredSubjects.length ? 'inherit' : 'var(--colorNeutralForeground3)'};">
+                                ${preferredSubjects.length ? preferredSubjects.map(s => escapeHtml(String(s))).join(', ') : '—'}
+                            </div>
+                        </div>
+
+                        <div style="margin: var(--spacing-s) 0;">
+                            <strong>Trigger Subjects:</strong>
+                            <div style="margin-top: var(--spacing-xs); color: ${triggerSubjects.length ? 'inherit' : 'var(--colorNeutralForeground3)'};">
+                                ${triggerSubjects.length ? triggerSubjects.map(s => escapeHtml(String(s))).join(', ') : '—'}
+                            </div>
+                        </div>
+
+                        <div style="margin: var(--spacing-s) 0;">
+                            <strong>Domains &amp; Issues:</strong>
+                            <div style="margin-top: var(--spacing-xs);">
+                                ${conditionsList || '<span style="color: var(--colorNeutralForeground3);">No conditions selected</span>'}
+                            </div>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -2540,13 +2789,15 @@
                 for (const [studentId, student] of Object.entries(selectedStudents)) {
                     const conditions = studentConditions[studentId] || {};
                     
-                    const domainsAndIssues = formatDomainsAndIssuesByDomain(conditions, studentSubjects[studentId] || []);
+                    const domainsAndIssues = formatDomainsAndIssuesByDomain(conditions);
                     if (domainsAndIssues) {
                         referrals.push({
                             studentId: studentId,
                             studentName: student.new_fullname,
                             domainsAndIssues,
                             strengths: (studentStrengths[studentId] || '').trim(),
+                            preferredSubjects: studentPreferredSubjects[studentId] || [],
+                            triggerSubjects: studentTriggerSubjects[studentId] || [],
                             referredBy: currentUserEmail,
                             referredByName: currentUserDisplayName
                         });
@@ -2569,6 +2820,9 @@
                     setTimeout(() => {
                         selectedStudents = {};
                         studentConditions = {};
+                        studentStrengths = {};
+                        studentPreferredSubjects = {};
+                        studentTriggerSubjects = {};
                         showView('home');
                         hideStatus();
                     }, 2000);
@@ -2619,9 +2873,25 @@
         let outcomesActiveCase = null;
         let outcomesModalMode = 'pending'; // 'pending' | 'completed'
 
+        function getReferralIdFromCase(c) {
+            return c?.crd88_referraltoapid || c?.crd88_studentsupportcaseid || c?.id || null;
+        }
+
+        function getReviewDateFromCase(c) {
+            return c?.reviewDate || c?.crd88_ap_reviewdate || null;
+        }
+
+        function getActionPlanTextFromCase(c) {
+            return (c?.actionPlan ?? c?.crd88_ap_actionplan ?? '').toString();
+        }
+
+        function getActionByFromCase(c) {
+            return (c?.actionBy ?? c?.crd88_ap_actionby ?? '').toString();
+        }
+
         function getStudentDisplayFromCase(c) {
             // If expand worked, prefer it; otherwise fall back to GUID
-            const expanded = c?.crd88_new_Students;
+            const expanded = c?.crd88_new_students || c?.crd88_new_Students;
             if (expanded && (expanded.new_fullname || expanded.crd88_indexnumber)) {
                 const name = expanded.new_fullname || 'Unknown';
                 const idx = expanded.crd88_indexnumber ? ` (${expanded.crd88_indexnumber})` : '';
@@ -2697,11 +2967,11 @@
                         </thead>
                         <tbody>
                             ${outcomesPendingCases.map(c => `
-                                <tr class="clickable-row" onclick="openOutcomesModal('${c.crd88_studentsupportcaseid}', 'pending')">
-                                    <td>${formatDateForDisplay(c.crd88_ap_reviewdate)}</td>
+                                <tr class="clickable-row" onclick="openOutcomesModal('${getReferralIdFromCase(c)}', 'pending')">
+                                    <td>${formatDateForDisplay(getReviewDateFromCase(c))}</td>
                                     <td>${escapeHtml(getStudentDisplayFromCase(c))}</td>
                                     <td style="max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        ${escapeHtml((c.crd88_domainsandissues || '').replace(/\\s+/g, ' ').trim() || '-')}
+                                        ${escapeHtml((c.crd88_domainsandconditions || '').replace(/\\s+/g, ' ').trim() || '-')}
                                     </td>
                                 </tr>
                             `).join('')}
@@ -2725,11 +2995,11 @@
                         </thead>
                         <tbody>
                             ${outcomesCompletedCases.map(c => `
-                                <tr class="clickable-row" onclick="openOutcomesModal('${c.crd88_studentsupportcaseid}', 'completed')">
-                                    <td>${formatDateForDisplay(c.crd88_ap_reviewdate)}</td>
+                                <tr class="clickable-row" onclick="openOutcomesModal('${getReferralIdFromCase(c)}', 'completed')">
+                                    <td>${formatDateForDisplay(getReviewDateFromCase(c))}</td>
                                     <td>${escapeHtml(getStudentDisplayFromCase(c))}</td>
                                     <td style="max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        ${escapeHtml((c.crd88_final_outcome || '').replace(/\\s+/g, ' ').trim() || '-')}
+                                        ${escapeHtml((c.crd88_referralfinaloutcome || '').replace(/\\s+/g, ' ').trim() || '-')}
                                     </td>
                                 </tr>
                             `).join('')}
@@ -2740,12 +3010,12 @@
         }
 
         function findCaseById(caseId) {
-            return outcomesPendingCases.find(c => c.crd88_studentsupportcaseid === caseId) ||
-                outcomesCompletedCases.find(c => c.crd88_studentsupportcaseid === caseId) ||
+            return outcomesPendingCases.find(c => getReferralIdFromCase(c) === caseId) ||
+                outcomesCompletedCases.find(c => getReferralIdFromCase(c) === caseId) ||
                 null;
         }
 
-        function openOutcomesModal(caseId, mode) {
+        async function openOutcomesModal(caseId, mode) {
             const c = findCaseById(caseId);
             if (!c) return;
 
@@ -2756,10 +3026,10 @@
             const studentName = getStudentDisplayFromCase(c);
             document.getElementById('outcomesStudentName').textContent = studentName || 'Student';
             document.getElementById('outcomesRefId').textContent = c.crd88_refid || '—';
-            document.getElementById('outcomesReviewDatePill').textContent = formatDateForDisplay(c.crd88_ap_reviewdate);
+            document.getElementById('outcomesReviewDatePill').textContent = formatDateForDisplay(getReviewDateFromCase(c));
 
             // Domains
-            const parsed = parseDomainsAndIssuesText(c.crd88_domainsandissues || '');
+            const parsed = parseDomainsAndIssuesText(c.crd88_domainsandconditions || '');
             const domainsDiv = document.getElementById('outcomesDomains');
             if (!parsed.length) {
                 domainsDiv.textContent = 'No domains/conditions recorded.';
@@ -2783,10 +3053,27 @@
             }
 
             // Quick reference (styled text)
-            document.getElementById('outcomesGoals').textContent = (c.crd88_ap_goals || '').trim() || '—';
-            document.getElementById('outcomesActionPlan').textContent = (c.crd88_ap_actionplan || '').trim() || '—';
-            document.getElementById('outcomesActionBy').textContent = (c.crd88_ap_actionby || '').trim() || '—';
-            document.getElementById('outcomesReviewDate').textContent = formatDateForDisplay(c.crd88_ap_reviewdate);
+            document.getElementById('outcomesActionPlan').textContent = getActionPlanTextFromCase(c).trim() || '—';
+            document.getElementById('outcomesActionBy').textContent = getActionByFromCase(c).trim() || '—';
+            document.getElementById('outcomesReviewDate').textContent = formatDateForDisplay(getReviewDateFromCase(c));
+
+            // Goals are stored as child records; fetch them when opening (best-effort)
+            const goalsEl = document.getElementById('outcomesGoals');
+            goalsEl.textContent = 'Loading...';
+            try {
+                const apId = c.actionPlanId || c?.latestActionPlan?.crd88_actionplanid || null;
+                if (apId) {
+                    const gres = await apiCall(REFERRAL_API_BASE_URL, `listGoalsByActionPlan&actionPlanId=${encodeURIComponent(apId)}`);
+                    const lines = (gres.goalsNormalized || []).map(g => (g.text || '').trim()).filter(Boolean);
+                    const goalsText = lines.join('\n').trim();
+                    c._goalsText = goalsText;
+                    goalsEl.textContent = goalsText || '—';
+                } else {
+                    goalsEl.textContent = '—';
+                }
+            } catch (_) {
+                goalsEl.textContent = '—';
+            }
 
             // Finalization section
             const finalize = document.getElementById('outcomesFinalizeSection');
@@ -2796,16 +3083,16 @@
             if (mode === 'pending') {
                 finalize.style.display = 'block';
                 // prefill current values (if any)
-                setSwitchValue('outcomesInterventionCompleteSwitch', (typeof c.crd88_final_interventioncomplete === 'boolean') ? c.crd88_final_interventioncomplete : null);
-                document.getElementById('outcomesFinalOutcome').value = c.crd88_final_outcome || '';
+                setSwitchValue('outcomesInterventionCompleteSwitch', (typeof c.crd88_referralcompleted === 'boolean') ? c.crd88_referralcompleted : null);
+                document.getElementById('outcomesFinalOutcome').value = c.crd88_referralfinaloutcome || '';
                 document.getElementById('outcomesFinalOutcome').disabled = false;
                 document.getElementById('outcomesSaveBtn').disabled = false;
                 document.getElementById('outcomesInterventionCompleteSwitch').disabled = false;
             } else {
                 finalize.style.display = 'block';
                 // show values but disable edits
-                setSwitchValue('outcomesInterventionCompleteSwitch', (typeof c.crd88_final_interventioncomplete === 'boolean') ? c.crd88_final_interventioncomplete : null);
-                document.getElementById('outcomesFinalOutcome').value = c.crd88_final_outcome || '';
+                setSwitchValue('outcomesInterventionCompleteSwitch', (typeof c.crd88_referralcompleted === 'boolean') ? c.crd88_referralcompleted : null);
+                document.getElementById('outcomesFinalOutcome').value = c.crd88_referralfinaloutcome || '';
                 document.getElementById('outcomesFinalOutcome').disabled = true;
                 document.getElementById('outcomesSaveBtn').disabled = true;
                 document.getElementById('outcomesInterventionCompleteSwitch').disabled = true;
@@ -2821,7 +3108,8 @@
         }
 
         async function saveOutcomeFinalization() {
-            if (!outcomesActiveCase?.crd88_studentsupportcaseid) return;
+            const referralId = getReferralIdFromCase(outcomesActiveCase);
+            if (!referralId) return;
 
             const btn = document.getElementById('outcomesSaveBtn');
             btn.disabled = true;
@@ -2842,8 +3130,7 @@
             }
 
             try {
-                const caseId = outcomesActiveCase.crd88_studentsupportcaseid;
-                const url = `${REFERRAL_API_BASE_URL}?action=updateCase&caseId=${encodeURIComponent(caseId)}`;
+                const url = `${REFERRAL_API_BASE_URL}?action=updateCase&caseId=${encodeURIComponent(referralId)}`;
                 const payload = {
                     interventionComplete,
                     finalOutcome
@@ -2864,10 +3151,10 @@
                 }
 
                 // Update local cache: move from pending -> completed
-                outcomesActiveCase.crd88_final_interventioncomplete = interventionComplete;
-                outcomesActiveCase.crd88_final_outcome = finalOutcome;
+                outcomesActiveCase.crd88_referralcompleted = interventionComplete;
+                outcomesActiveCase.crd88_referralfinaloutcome = finalOutcome;
 
-                outcomesPendingCases = outcomesPendingCases.filter(c => c.crd88_studentsupportcaseid !== caseId);
+                outcomesPendingCases = outcomesPendingCases.filter(c => getReferralIdFromCase(c) !== referralId);
                 outcomesCompletedCases = [outcomesActiveCase, ...outcomesCompletedCases];
 
                 document.getElementById('pendingCount').textContent = `${outcomesPendingCases.length}`;
@@ -2957,8 +3244,22 @@
                 meetingStudentLatestCase = {};
                 const casePromises = meetingStudents.map(async (s) => {
                     try {
-                        const res = await apiCall(REFERRAL_API_BASE_URL, `latestCaseByStudent&studentId=${s.new_studentsid}`);
-                        if (res?.case) meetingStudentLatestCase[s.new_studentsid] = res.case;
+                        const res = await apiCall(REFERRAL_API_BASE_URL, `latestReferralByStudent&studentId=${s.new_studentsid}`);
+                        const referral = res?.referral;
+                        if (referral) {
+                            // Attach latest action plan (normalized) for filtering/prefill
+                            try {
+                                const rid = referral.crd88_referraltoapid || null;
+                                if (rid) {
+                                    const apRes = await apiCall(REFERRAL_API_BASE_URL, `latestActionPlanByReferral&referralId=${encodeURIComponent(rid)}`);
+                                    referral.__actionPlanNormalized = apRes?.actionPlanNormalized || null;
+                                    referral.__actionPlanId = apRes?.actionPlanNormalized?.actionPlanId || apRes?.actionPlan?.crd88_actionplanid || null;
+                                }
+                            } catch (_) {
+                                // ignore
+                            }
+                            meetingStudentLatestCase[s.new_studentsid] = referral;
+                        }
                     } catch (_) {
                         // ignore individual failures; student may have no case
                     }
@@ -2970,7 +3271,7 @@
 
                 // Hide cases that already have a next review date (they move to Review Outcomes)
                 for (const [sid, c] of Object.entries(meetingStudentLatestCase)) {
-                    if (c && c.crd88_ap_reviewdate) delete meetingStudentLatestCase[sid];
+                    if (c?.__actionPlanNormalized?.reviewDate) delete meetingStudentLatestCase[sid];
                 }
 
                 renderMeetingStudentsList();
@@ -2995,7 +3296,7 @@
 
             const rows = studentsWithCases.map(s => {
                 const c = meetingStudentLatestCase[s.new_studentsid];
-                const summary = (c?.crd88_domainsandissues || '').split(/\r?\n/).slice(0, 4).join(' · ');
+                const summary = (c?.crd88_domainsandconditions || '').split(/\r?\n/).slice(0, 4).join(' · ');
 
                 return `
                     <div class="student-item" onclick="openMeetingModal('${s.new_studentsid}')" style="cursor: pointer;">
@@ -3016,21 +3317,21 @@
             container.innerHTML = `<div style="display: grid; gap: var(--spacing-s);">${rows}</div>`;
         }
 
-        function openMeetingModal(studentId) {
+        async function openMeetingModal(studentId) {
             const student = meetingStudents.find(s => s.new_studentsid === studentId);
-            const supportCase = meetingStudentLatestCase[studentId];
-            if (!student || !supportCase) return;
+            const referral = meetingStudentLatestCase[studentId];
+            if (!student || !referral) return;
 
-            meetingActiveStudent = { student, case: supportCase };
+            meetingActiveStudent = { student, referral, actionPlanId: null };
 
             const nameEl = document.getElementById('meetingStudentName');
             if (nameEl) nameEl.textContent = student.new_fullname || 'Student';
 
             const refEl = document.getElementById('meetingStudentRefId');
-            if (refEl) refEl.textContent = supportCase.crd88_refid || '—';
+            if (refEl) refEl.textContent = referral.crd88_refid || '—';
 
             // Domains/conditions display (use stored formatted text)
-            const domainsText = supportCase.crd88_domainsandissues || '';
+            const domainsText = referral.crd88_domainsandconditions || '';
             const parsed = parseDomainsAndIssuesText(domainsText);
             const domainsDiv = document.getElementById('meetingModalDomains');
 
@@ -3051,20 +3352,55 @@
             // Strengths
             const strengthsDiv = document.getElementById('meetingModalStrengths');
             if (strengthsDiv) {
-                const strengths = (supportCase.crd88_strengths || '').trim();
+                const strengths = (referral.crd88_strengths || '').trim();
                 strengthsDiv.textContent = strengths || '—';
                 strengthsDiv.className = strengths ? 'domains-empty' : 'domains-empty';
             }
 
-            // Prefill form if fields exist
-            document.getElementById('meetingGoals').value = supportCase.crd88_ap_goals || '';
-            document.getElementById('meetingActionPlan').value = supportCase.crd88_ap_actionplan || '';
-            document.getElementById('meetingActionBy').value = supportCase.crd88_ap_actionby || '';
-            const notesEl = document.getElementById('meetingNotes');
-            if (notesEl) notesEl.value = supportCase.crd88_ap_meetingnotes || '';
+            // Subjects (preferred + trigger)
+            const subjectsDiv = document.getElementById('meetingModalSubjects');
+            if (subjectsDiv) {
+                const parseNewlineList = (t) => String(t || '')
+                    .split(/\r?\n/)
+                    .map(s => s.trim())
+                    .filter(Boolean);
 
-            const reviewDate = supportCase.crd88_ap_reviewdate;
-            document.getElementById('meetingReviewDate').value = reviewDate ? toDateInputValue(reviewDate) : '';
+                const preferred = parseNewlineList(referral.crd88_preferredsubjects);
+                const trigger = parseNewlineList(referral.crd88_triggersubjects);
+
+                if (!preferred.length && !trigger.length) {
+                    subjectsDiv.textContent = '—';
+                    subjectsDiv.className = 'domains-empty';
+                } else {
+                    const rows = [
+                        ...preferred.map(s => ({ type: 'preferred', label: s })),
+                        ...trigger.map(s => ({ type: 'trigger', label: s })),
+                    ];
+
+                    subjectsDiv.className = 'domains-empty';
+                    subjectsDiv.innerHTML = rows.map(r => `
+                        <div style="display:flex; align-items:center; gap: 10px; margin: 4px 0;">
+                            <span style="display:inline-flex; width: 18px; justify-content:center; font-weight: var(--fontWeightSemibold); color: ${r.type === 'preferred' ? 'var(--colorPaletteGreenForeground1)' : 'var(--colorPaletteRedForeground1)'};">
+                                ${r.type === 'preferred' ? '✓' : '✕'}
+                            </span>
+                            <span>${escapeHtml(r.label)}</span>
+                        </div>
+                    `).join('');
+                }
+            }
+
+            const referralId = referral.crd88_referraltoapid;
+
+            // Meeting notes (stored on referral)
+            const notesEl = document.getElementById('meetingNotes');
+            if (notesEl) notesEl.value = (referral.crd88_meetingnotes || '');
+
+            // Goals for this referral (stored in Goal table, linked to ReferralToAP)
+            meetingGoalsState = [];
+            meetingActionPlansState = {};
+            meetingActiveGoalId = null;
+            closeGoalActionPanel(true);
+            await loadMeetingGoalsForReferral(referralId);
 
             // Clear modal status
             const modalStatus = document.getElementById('meetingModalStatus');
@@ -3078,6 +3414,10 @@
             const modal = document.getElementById('meetingModal');
             if (modal) modal.style.display = 'none';
             meetingActiveStudent = null;
+            meetingGoalsState = [];
+            meetingActionPlansState = {};
+            meetingActiveGoalId = null;
+            closeGoalActionPanel(true);
         }
 
         function toDateInputValue(isoString) {
@@ -3099,79 +3439,389 @@
                 .replace(/'/g, '&#039;');
         }
 
+        // ============================================================================
+        // MEETING MODAL - Goals + Action Plans (Goal-first flow)
+        // ============================================================================
+        function renderMeetingGoalsTable() {
+            const body = document.getElementById('meetingGoalsTableBody');
+            if (!body) return;
+
+            if (!Array.isArray(meetingGoalsState) || meetingGoalsState.length === 0) {
+                body.innerHTML = `
+                    <div class="goals-row goals-row-empty">
+                        <div style="grid-column: 1 / -1; color: var(--colorNeutralForeground2); font-size: var(--fontSizeSmall);">
+                            No goals yet. Click <strong>+</strong> to add one.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            body.innerHTML = meetingGoalsState.map((g, idx) => {
+                const inputId = `meeting-goal-${idx}`;
+                return `
+                    <div class="goals-row">
+                        <div>
+                            <input
+                                id="${inputId}"
+                                class="form-control"
+                                type="text"
+                                value="${escapeHtml(g?.text || '')}"
+                                placeholder="Type a goal..."
+                                oninput="meetingGoalsState[${idx}].text=this.value"
+                                onblur="saveMeetingGoalByIndex(${idx})"
+                                onkeydown="if(event.key==='Enter'){ event.preventDefault(); this.blur(); }"
+                            />
+                        </div>
+                        <div style="display:flex; justify-content:flex-end;">
+                            <button
+                                class="icon-btn"
+                                type="button"
+                                onclick="openGoalActionPanelByIndex(${idx})"
+                                aria-label="Open action plans"
+                                title="Open action plans"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        async function openGoalActionPanelByIndex(index) {
+            const g = meetingGoalsState?.[index];
+            if (!g) return;
+
+            // Ensure the goal exists first (createGoal), then open action plans
+            if (!g.id) {
+                await saveMeetingGoalByIndex(index);
+            }
+            const goalId = meetingGoalsState?.[index]?.id;
+            if (!goalId) return;
+            await openGoalActionPanel(String(goalId));
+        }
+
+        function addMeetingGoalRow() {
+            if (!Array.isArray(meetingGoalsState)) meetingGoalsState = [];
+            meetingGoalsState.push({ id: null, text: '' });
+            renderMeetingGoalsTable();
+
+            // focus new row
+            setTimeout(() => {
+                const el = document.getElementById(`meeting-goal-${meetingGoalsState.length - 1}`);
+                if (el) el.focus();
+            }, 0);
+        }
+
+        async function loadMeetingGoalsForReferral(referralId) {
+            const body = document.getElementById('meetingGoalsTableBody');
+            if (body) {
+                body.innerHTML = `
+                    <div class="goals-row goals-row-empty">
+                        <div style="grid-column: 1 / -1; color: var(--colorNeutralForeground2); font-size: var(--fontSizeSmall);">Loading goals…</div>
+                    </div>
+                `;
+            }
+
+            if (!referralId) {
+                meetingGoalsState = [];
+                renderMeetingGoalsTable();
+                return;
+            }
+
+            try {
+                const res = await apiCall(REFERRAL_API_BASE_URL, `listGoalsByReferral&referralId=${encodeURIComponent(referralId)}`);
+                const goals = res?.goalsNormalized || [];
+                meetingGoalsState = Array.isArray(goals)
+                    ? goals.map(g => ({ id: g.id || null, text: (g.text || '').toString() }))
+                    : [];
+            } catch (_) {
+                meetingGoalsState = [];
+            }
+
+            renderMeetingGoalsTable();
+        }
+
+        async function saveMeetingGoalByIndex(index) {
+            const referralId = meetingActiveStudent?.referral?.crd88_referraltoapid;
+            const g = meetingGoalsState?.[index];
+            if (!g || !referralId) return;
+
+            const text = (g.text || '').toString().trim();
+            if (!text) return;
+
+            try {
+                if (!g.id) {
+                    const res = await apiCall(REFERRAL_API_BASE_URL, 'createGoal', 'POST', { referralId, text });
+                    const goalId = res?.goalId || null;
+                    if (goalId) meetingGoalsState[index].id = goalId;
+                } else {
+                    await apiCall(REFERRAL_API_BASE_URL, 'updateGoal', 'POST', { goalId: g.id, text });
+                }
+            } catch (e) {
+                const modalStatus = document.getElementById('meetingModalStatus');
+                if (modalStatus) {
+                    modalStatus.textContent = `Error saving goal: ${e.message}`;
+                    modalStatus.className = 'status error';
+                }
+            }
+
+            renderMeetingGoalsTable();
+        }
+
+        function closeGoalActionPanel(silent = false) {
+            const panel = document.getElementById('meetingGoalActionPanel');
+            if (panel) {
+                panel.classList.remove('open');
+                panel.setAttribute('aria-hidden', 'true');
+            }
+            meetingActiveGoalId = null;
+            const title = document.getElementById('meetingActiveGoalTitle');
+            if (title) title.textContent = '—';
+
+            if (!silent) {
+                renderMeetingGoalsTable();
+            }
+        }
+
+        async function openGoalActionPanel(goalId) {
+            if (!goalId) return;
+            meetingActiveGoalId = goalId;
+
+            const goal = (meetingGoalsState || []).find(g => String(g.id) === String(goalId));
+            const title = document.getElementById('meetingActiveGoalTitle');
+            if (title) title.textContent = (goal?.text || '').toString().trim() || '—';
+
+            const panel = document.getElementById('meetingGoalActionPanel');
+            if (panel) {
+                panel.classList.add('open');
+                panel.setAttribute('aria-hidden', 'false');
+            }
+
+            if (!meetingActionPlansState[goalId]) {
+                meetingActionPlansState[goalId] = [];
+                try {
+                    const res = await apiCall(REFERRAL_API_BASE_URL, `listActionPlansByGoal&goalId=${encodeURIComponent(goalId)}`);
+                    const aps = res?.actionPlansNormalized || [];
+                    meetingActionPlansState[goalId] = Array.isArray(aps) ? aps.map(a => ({
+                        id: a.id || null,
+                        actionPlanDetails: (a.actionPlanDetails || '').toString(),
+                        actionBy: (a.actionBy || '').toString(),
+                        reviewDate: a.reviewDate || null,
+                        status: (a.status ?? 5),
+                    })) : [];
+                } catch (_) {
+                    meetingActionPlansState[goalId] = [];
+                }
+            }
+
+            // If none exist, start a new draft row immediately (matches "press > to create an action plan")
+            if ((meetingActionPlansState[goalId] || []).length === 0) {
+                meetingActionPlansState[goalId].push({
+                    id: null,
+                    actionPlanDetails: '',
+                    actionBy: '',
+                    reviewDate: null,
+                    status: 5
+                });
+            }
+
+            renderMeetingActionPlansTable();
+        }
+
+        function renderMeetingActionPlansTable() {
+            const goalId = meetingActiveGoalId;
+            const body = document.getElementById('meetingActionPlansTableBody');
+            if (!body) return;
+
+            const rows = meetingActionPlansState?.[goalId] || [];
+            if (!goalId) {
+                body.innerHTML = '';
+                return;
+            }
+            if (!rows.length) {
+                body.innerHTML = `
+                    <div class="ap-row ap-row-empty">
+                        <div style="grid-column: 1 / -1; color: var(--colorNeutralForeground2); font-size: var(--fontSizeSmall);">
+                            No action plans yet. Click <strong>+</strong> to add one.
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            body.innerHTML = rows.map((ap, idx) => {
+                const dateVal = ap?.reviewDate ? toDateInputValue(ap.reviewDate) : '';
+                const statusVal = (ap?.status ?? 5);
+                const canSave = !!(ap?.id || (ap?.actionPlanDetails || '').toString().trim());
+                const saveType = ap?.__saveStatusType || '';
+                const saveMsg = (ap?.__saveStatusMsg || '').toString();
+                return `
+                    <div class="ap-row">
+                        <div class="ap-detail">
+                            <textarea class="form-control" rows="3"
+                                      placeholder="Action plan detail..."
+                                      oninput="meetingActionPlansState['${goalId}'][${idx}].actionPlanDetails=this.value; meetingActionPlansState['${goalId}'][${idx}].__saveStatusType=''; meetingActionPlansState['${goalId}'][${idx}].__saveStatusMsg='';"
+                                      onblur="saveMeetingActionPlanRow(${idx})"
+                            >${escapeHtml(ap?.actionPlanDetails || '')}</textarea>
+                        </div>
+                        <div>
+                            <label style="display:block; font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); margin-bottom: 6px;">Action by</label>
+                            <input class="form-control" type="text" value="${escapeHtml(ap?.actionBy || '')}"
+                                   placeholder="Who is responsible?"
+                                   oninput="meetingActionPlansState['${goalId}'][${idx}].actionBy=this.value; meetingActionPlansState['${goalId}'][${idx}].__saveStatusType=''; meetingActionPlansState['${goalId}'][${idx}].__saveStatusMsg='';"
+                                   onblur="saveMeetingActionPlanRow(${idx})" />
+                        </div>
+                        <div>
+                            <label style="display:block; font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); margin-bottom: 6px;">Next Review Date</label>
+                            <input class="form-control" type="date" value="${escapeHtml(dateVal)}"
+                                   onchange="onMeetingActionPlanDateChange(${idx}, this.value)" />
+                        </div>
+                        <div>
+                            <label style="display:block; font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); margin-bottom: 6px;">Review Status</label>
+                            <div style="display:flex; gap: 8px; align-items:center;">
+                                <select class="form-control" style="flex: 1;" onchange="onMeetingActionPlanStatusChange(${idx}, this.value)">
+                                    <option value="5" ${String(statusVal) === '5' ? 'selected' : ''}>In Progress</option>
+                                    <option value="7" ${String(statusVal) === '7' ? 'selected' : ''}>Completed</option>
+                                </select>
+                                <button
+                                    class="btn btn-primary"
+                                    type="button"
+                                    style="padding: 10px 14px; border-radius: 10px; height: 42px; white-space: nowrap;"
+                                    ${canSave ? '' : 'disabled'}
+                                    onclick="saveMeetingActionPlanRow(${idx})"
+                                >Save</button>
+                            </div>
+                            ${saveMsg ? `
+                                <div style="margin-top: 6px; font-size: var(--fontSizeSmall); color: ${
+                                    saveType === 'success'
+                                        ? 'var(--colorPaletteGreenForeground1)'
+                                        : (saveType === 'error' ? 'var(--colorPaletteRedForeground1)' : 'var(--colorNeutralForeground2)')
+                                };">
+                                    ${escapeHtml(saveMsg)}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function addMeetingActionPlanRow() {
+            const goalId = meetingActiveGoalId;
+            if (!goalId) return;
+            if (!meetingActionPlansState[goalId]) meetingActionPlansState[goalId] = [];
+            meetingActionPlansState[goalId].push({
+                id: null,
+                actionPlanDetails: '',
+                actionBy: '',
+                reviewDate: null,
+                status: 5
+            });
+            renderMeetingActionPlansTable();
+        }
+
+        function onMeetingActionPlanDateChange(index, dateValue) {
+            const goalId = meetingActiveGoalId;
+            if (!goalId) return;
+            const ap = meetingActionPlansState?.[goalId]?.[index];
+            if (!ap) return;
+
+            ap.reviewDate = dateValue
+                ? new Date(dateValue + 'T00:00:00Z').toISOString()
+                : null;
+            ap.__saveStatusType = '';
+            ap.__saveStatusMsg = '';
+            saveMeetingActionPlanRow(index);
+        }
+
+        function onMeetingActionPlanStatusChange(index, statusValue) {
+            const goalId = meetingActiveGoalId;
+            if (!goalId) return;
+            const ap = meetingActionPlansState?.[goalId]?.[index];
+            if (!ap) return;
+
+            ap.status = Number(statusValue);
+            ap.__saveStatusType = '';
+            ap.__saveStatusMsg = '';
+            saveMeetingActionPlanRow(index);
+        }
+
+        async function saveMeetingActionPlanRow(index) {
+            const goalId = meetingActiveGoalId;
+            const referralId = meetingActiveStudent?.referral?.crd88_referraltoapid;
+            if (!goalId || !referralId) return;
+
+            const ap = meetingActionPlansState?.[goalId]?.[index];
+            if (!ap) return;
+
+            const payload = {
+                goalId,
+                referralId,
+                actionPlanId: ap.id || null,
+                actionPlanDetails: (ap.actionPlanDetails || '').toString().trim(),
+                actionBy: (ap.actionBy || '').toString().trim(),
+                reviewDate: ap.reviewDate || null,
+                status: ap.status ?? 5
+            };
+            // Avoid creating empty action plans accidentally
+            if (!ap.id && !payload.actionPlanDetails) return;
+            if (payload.reviewDate === null) delete payload.reviewDate;
+            if (payload.actionPlanId === null) delete payload.actionPlanId;
+
+            try {
+                ap.__saveStatusType = 'info';
+                ap.__saveStatusMsg = 'Saving...';
+                renderMeetingActionPlansTable();
+                const res = await apiCall(REFERRAL_API_BASE_URL, 'upsertActionPlanForGoal', 'POST', payload);
+                const apId = res?.actionPlanId || null;
+                if (apId && !ap.id) {
+                    meetingActionPlansState[goalId][index].id = apId;
+                }
+                meetingActionPlansState[goalId][index].__saveStatusType = 'success';
+                meetingActionPlansState[goalId][index].__saveStatusMsg = (res?.message || 'Saved.').toString();
+            } catch (e) {
+                meetingActionPlansState[goalId][index].__saveStatusType = 'error';
+                meetingActionPlansState[goalId][index].__saveStatusMsg = `Error: ${e.message}`;
+            }
+
+            renderMeetingActionPlansTable();
+        }
+
         async function submitMeetingPlan() {
-            if (!meetingActiveStudent?.case?.crd88_studentsupportcaseid) return;
+            const referralId = meetingActiveStudent?.referral?.crd88_referraltoapid;
+            if (!referralId) return;
 
             const btn = document.getElementById('meetingSubmitBtn');
             btn.disabled = true;
-            btn.textContent = 'Submitting...';
-
-            const payload = {
-                goals: document.getElementById('meetingGoals').value || '',
-                actionPlan: document.getElementById('meetingActionPlan').value || '',
-                actionBy: document.getElementById('meetingActionBy').value || '',
-                meetingNotes: (document.getElementById('meetingNotes')?.value || ''),
-                reviewDate: document.getElementById('meetingReviewDate').value
-                    ? new Date(document.getElementById('meetingReviewDate').value + 'T00:00:00Z').toISOString()
-                    : null
-            };
-
-            // Remove null reviewDate to avoid clearing unintentionally unless user picked a value
-            if (payload.reviewDate === null) delete payload.reviewDate;
+            btn.textContent = 'Saving...';
 
             try {
-                const caseId = meetingActiveStudent.case.crd88_studentsupportcaseid;
-                // Avoid CORS preflight by using a "simple" request:
-                // - POST
-                // - Content-Type: text/plain
-                // This still sends JSON that PHP can json_decode from php://input.
-                const url = `${REFERRAL_API_BASE_URL}?action=updateCase&caseId=${encodeURIComponent(caseId)}`;
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-                    body: JSON.stringify(payload)
-                });
+                const meetingNotes = (document.getElementById('meetingNotes')?.value || '');
+                await apiCall(REFERRAL_API_BASE_URL, `updateCase&caseId=${encodeURIComponent(referralId)}`, 'POST', { meetingNotes });
 
-                const raw = await response.text();
-                let parsed = null;
-                try { parsed = raw ? JSON.parse(raw) : null; } catch (_) {}
-
-                if (!response.ok) {
-                    const msg = (parsed && (parsed.error || parsed.message)) ? (parsed.error || parsed.message) : (raw || `HTTP ${response.status}`);
-                    throw new Error(msg);
-                }
-
-                // Update cached case + UI
-                meetingActiveStudent.case.crd88_ap_goals = payload.goals;
-                meetingActiveStudent.case.crd88_ap_actionplan = payload.actionPlan;
-                meetingActiveStudent.case.crd88_ap_actionby = payload.actionBy;
-                meetingActiveStudent.case.crd88_ap_meetingnotes = payload.meetingNotes;
-                if (payload.reviewDate) meetingActiveStudent.case.crd88_ap_reviewdate = payload.reviewDate;
-
+                // Update cached referral + attached action plan meta
                 const sid = meetingActiveStudent.student.new_studentsid;
-                meetingStudentLatestCase[sid] = meetingActiveStudent.case;
-
-                // If a review date is set, remove it from Meeting stage immediately
-                if (meetingActiveStudent.case.crd88_ap_reviewdate) {
-                    delete meetingStudentLatestCase[sid];
-                    renderMeetingStudentsList();
-                    closeMeetingModal();
-                } else {
-                    renderMeetingStudentsList();
-                }
+                const current = meetingStudentLatestCase[sid] || meetingActiveStudent.referral;
+                current.crd88_meetingnotes = meetingNotes;
+                meetingStudentLatestCase[sid] = current;
+                renderMeetingStudentsList();
 
                 const modalStatus = document.getElementById('meetingModalStatus');
                 modalStatus.textContent = 'Saved successfully.';
                 modalStatus.className = 'status success';
 
-                btn.textContent = 'Submit';
+                btn.textContent = 'Save Notes';
                 btn.disabled = false;
             } catch (e) {
                 const modalStatus = document.getElementById('meetingModalStatus');
                 modalStatus.textContent = `Error saving: ${e.message}`;
                 modalStatus.className = 'status error';
 
-                btn.textContent = 'Submit';
+                btn.textContent = 'Save Notes';
                 btn.disabled = false;
             }
         }
