@@ -19,6 +19,21 @@ jobs:
         with:
           submodules: true
           lfs: false
+      - name: Inject AP Referral API key
+        run: |
+          KEY="${{ secrets.AP_REFERRAL_API_KEY }}"
+          if [ -n "$KEY" ]; then
+            node -e "
+              const fs = require('fs');
+              const key = process.env.AP_REFERRAL_API_KEY || '';
+              const escaped = key.replace(/\\\\/g, '\\\\\\\\').replace(/'/g, \"\\\\'\");
+              let html = fs.readFileSync('index.html', 'utf8');
+              html = html.replace(/__INJECT_AP_KEY__/g, escaped);
+              fs.writeFileSync('index.html', html);
+            "
+          fi
+        env:
+          AP_REFERRAL_API_KEY: ${{ secrets.AP_REFERRAL_API_KEY }}
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1

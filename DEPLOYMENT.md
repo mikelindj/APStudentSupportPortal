@@ -49,6 +49,16 @@ Upload via:
 - Teams Admin Center (org deployment) or
 - Teams Developer Portal (test deployment)
 
+## 3) AP Referral API key (production)
+
+The **Review Outcomes** view and other referral features call `apReferral.php` on `parents.acsacademy.edu.sg`. If that API has `AP_REFERRAL_API_KEY` (or `AP_API_KEY`) set in its environment, the frontend must send the same key or requests return **401 Unauthorized**.
+
+For production (GitHub Actions → Azure Static Web Apps):
+
+1. In the API server environment, set `AP_REFERRAL_API_KEY` (or `AP_API_KEY`) to your shared secret.
+2. In the GitHub repo: **Settings → Secrets and variables → Actions** → add a secret named **`AP_REFERRAL_API_KEY`** with the same value.
+3. On each deploy, the workflow injects this key into `index.html` so the app can call the referral API. If the secret is not set, the placeholder is left in place and referral/outcomes calls will return Unauthorized in production.
+
 ## Notes
 
 - This UI calls existing APIs on `parents.acsacademy.edu.sg` (CORS must allow your SWA origin).
