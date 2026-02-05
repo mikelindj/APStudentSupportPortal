@@ -2055,13 +2055,7 @@
         const REFERRAL_API_BASE_URL = 'https://parents.acsacademy.edu.sg/api/apReferral.php';
 
         // CI replaces __INJECT_AP_KEY__ with the real key at deploy time. Do not send key if still placeholder.
-        const AP_REFERRAL_API_KEY = (() => {
-            const v = (typeof window.AP_REFERRAL_API_KEY !== 'undefined' && window.AP_REFERRAL_API_KEY)
-                ? window.AP_REFERRAL_API_KEY
-                : '__INJECT_AP_KEY__';
-            const placeholders = ['__INJECT_AP_KEY__', '__AP_REFERRAL_API_KEY_PLACEHOLDER__'];
-            return (v && !placeholders.includes(v)) ? v : '';
-        })();
+        const AP_REFERRAL_API_KEY = 'CZ59IuE0ZNH6P50wzbuLFMocMYwSBCpl';
 
         // Azure AD Configuration (for reference - actual auth is handled server-side)
         const AZURE_CONFIG = {
