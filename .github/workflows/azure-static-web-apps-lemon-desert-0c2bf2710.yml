@@ -26,9 +26,9 @@ jobs:
             node -e "
               const fs = require('fs');
               const key = process.env.AP_REFERRAL_API_KEY || '';
-              const escaped = key.replace(/\\\\/g, '\\\\\\\\').replace(/'/g, \"\\\\'\");
+              const literal = JSON.stringify(key);
               let html = fs.readFileSync('index.html', 'utf8');
-              html = html.replace(/__INJECT_AP_KEY__/g, escaped);
+              html = html.replace(/'__INJECT_AP_KEY__'/g, literal);
               fs.writeFileSync('index.html', html);
             "
           fi
