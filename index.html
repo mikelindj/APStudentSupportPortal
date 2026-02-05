@@ -1366,6 +1366,134 @@
                 white-space: nowrap;
             }
         }
+
+        /* Review Outcomes - Student Cards */
+        .outcomes-student-card {
+            display: flex;
+            align-items: center;
+            padding: var(--spacing-m);
+            background: var(--colorNeutralBackground1);
+            border: 1px solid var(--colorNeutralStroke2);
+            border-radius: var(--radiusMedium);
+            cursor: pointer;
+            transition: all 0.2s;
+            gap: var(--spacing-m);
+        }
+
+        .outcomes-student-card:hover {
+            background: var(--colorNeutralBackground2);
+            border-color: var(--colorBrandBackground);
+        }
+
+        .outcomes-student-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .outcomes-student-name {
+            font-weight: var(--fontWeightSemibold);
+            color: var(--colorNeutralForeground1);
+        }
+
+        .outcomes-student-meta {
+            margin-top: var(--spacing-xs);
+            color: var(--colorNeutralForeground2);
+            font-size: var(--fontSizeSmall);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .outcomes-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 999px;
+            font-size: var(--fontSizeSmall);
+            font-weight: var(--fontWeightSemibold);
+        }
+
+        .outcomes-badge.warning {
+            background: rgba(255, 152, 0, 0.15);
+            color: #e65100;
+        }
+
+        .outcomes-badge.success {
+            background: rgba(16, 124, 16, 0.15);
+            color: #107c10;
+        }
+
+        /* Action Plan Item in Modal */
+        .action-plan-review-item {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--spacing-m);
+            padding: var(--spacing-m);
+            background: var(--colorNeutralBackground2);
+            border-radius: var(--radiusMedium);
+            margin-bottom: var(--spacing-s);
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .action-plan-review-item:hover {
+            background: var(--colorNeutralBackground3);
+            border-color: var(--colorBrandBackground);
+        }
+
+        .action-plan-review-item.completed {
+            opacity: 0.7;
+        }
+
+        .action-plan-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .action-plan-icon.warning svg {
+            color: #e65100;
+        }
+
+        .action-plan-icon.success svg {
+            color: #107c10;
+        }
+
+        .action-plan-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .action-plan-goal {
+            font-weight: var(--fontWeightSemibold);
+            color: var(--colorNeutralForeground1);
+            margin-bottom: var(--spacing-xs);
+        }
+
+        .action-plan-details {
+            font-size: var(--fontSizeSmall);
+            color: var(--colorNeutralForeground2);
+        }
+
+        .action-plan-meta {
+            display: flex;
+            gap: var(--spacing-m);
+            margin-top: var(--spacing-xs);
+            font-size: var(--fontSizeSmall);
+            color: var(--colorNeutralForeground3);
+        }
+
+        .action-plan-chevron {
+            flex-shrink: 0;
+            color: var(--colorNeutralForeground3);
+            display: flex;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
@@ -1707,7 +1835,7 @@
         <!-- Review Outcomes View -->
         <div id="outcomesView" class="view-container">
             <h2>Review Outcomes</h2>
-            <p>Pending cases require a final outcome. Completed cases are shown below for reference.</p>
+            <p>Review action plans that are due for review. Mark goals as completed when outcomes are achieved.</p>
 
             <div class="section-header">
                 <h3>Pending Review</h3>
@@ -1716,7 +1844,7 @@
             <div id="pendingOutcomesContainer">
                 <div class="loading">
                     <div class="spinner"></div>
-                    Loading pending cases...
+                    Loading pending reviews...
                 </div>
             </div>
 
@@ -1727,157 +1855,185 @@
             <div id="completedOutcomesContainer">
                 <div class="loading">
                     <div class="spinner"></div>
-                    Loading completed cases...
+                    Loading completed reviews...
                 </div>
             </div>
         </div>
-        <!-- Outcomes Modal -->
-        <div id="outcomesModal" class="modal-overlay" style="display: none;">
-            <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="outcomesStudentName">
-                <div class="modal-body">
-                    <div class="modal-grid">
-                        <div class="panel domains-panel">
-                            <div class="student-context">
-                                <div class="student-context-top">
-                                    <div style="min-width: 0;">
-                                        <h2 id="outcomesStudentName" class="student-name">Student</h2>
-                                        <div class="student-meta">
-                                            <span class="meta-pill">
-                                                <span class="label">Ref ID</span>
-                                                <span id="outcomesRefId">—</span>
-                                            </span>
-                                            <span class="meta-pill">
-                                                <span class="label">Review</span>
-                                                <span id="outcomesReviewDatePill">—</span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <button class="modal-close-btn" onclick="closeOutcomesModal()" aria-label="Close">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                                        </svg>
-                                    </button>
+        <!-- Outcomes Student Modal - Shows list of action plans for a student -->
+        <div id="outcomesStudentModal" class="modal-overlay" style="display: none;">
+            <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="outcomesStudentModalName" style="max-width: 700px;">
+                <div class="modal-body" style="padding: var(--spacing-l);">
+                    <div class="student-context">
+                        <div class="student-context-top">
+                            <div style="min-width: 0;">
+                                <h2 id="outcomesStudentModalName" class="student-name">Student</h2>
+                                <div class="student-meta">
+                                    <span class="meta-pill">
+                                        <span class="label">Ref ID</span>
+                                        <span id="outcomesStudentModalRefId">—</span>
+                                    </span>
                                 </div>
                             </div>
-                            <div class="domains-section">
-                                <div class="domains-title">
-                                    <h3>Domains & Conditions</h3>
-                                </div>
-                                <div id="outcomesDomains" class="domains-empty">Loading…</div>
+                            <button class="modal-close-btn" onclick="closeOutcomesStudentModal()" aria-label="Close">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
 
+                    <div class="modal-grid" style="grid-template-columns: 1fr 1fr; gap: var(--spacing-l); margin-top: var(--spacing-l);">
+                        <div class="panel domains-panel">
+                            <div class="domains-section" style="padding: 15px;">
                                 <div class="domains-title">
                                     <h3>Strengths</h3>
                                 </div>
-                                <div id="outcomesStrengths" class="domains-empty">—</div>
+                                <div id="outcomesStudentModalStrengths" class="domains-empty">—</div>
 
-                                <div class="domains-title">
-                                    <h3>Case Details</h3>
+                                <div class="domains-title" style="margin-top: var(--spacing-l);">
+                                    <h3>Domains &amp; Conditions</h3>
                                 </div>
-                                <div class="domains-scroll">
-                                    <div style="display: grid; gap: var(--spacing-m); margin-bottom: var(--spacing-l);">
-                                        <div>
-                                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); font-weight: var(--fontWeightSemibold); margin-bottom: var(--spacing-xs);">Goals</div>
-                                            <div id="outcomesGoals" class="domains-empty">—</div>
-                                        </div>
-                                        <div>
-                                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); font-weight: var(--fontWeightSemibold); margin-bottom: var(--spacing-xs);">Action Plan</div>
-                                            <div id="outcomesActionPlan" class="domains-empty">—</div>
-                                        </div>
-                                        <div>
-                                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); font-weight: var(--fontWeightSemibold); margin-bottom: var(--spacing-xs);">Action by</div>
-                                            <div id="outcomesActionBy" class="domains-empty">—</div>
-                                        </div>
-                                        <div>
-                                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); font-weight: var(--fontWeightSemibold); margin-bottom: var(--spacing-xs);">Next review date</div>
-                                            <div id="outcomesReviewDate" class="domains-empty">—</div>
-                                        </div>
-                                    </div>
+                                <div class="domains-scroll" style="max-height: 260px;">
+                                    <div id="outcomesStudentModalDomains" class="domains-empty">—</div>
                                 </div>
+
+                                <div class="domains-title" style="margin-top: var(--spacing-l);">
+                                    <h3>Meeting Notes</h3>
+                                </div>
+                                <div id="outcomesStudentModalMeetingNotes" class="domains-empty">—</div>
                             </div>
                         </div>
 
-                        <div class="panel">
-                            <div id="outcomesFinalizeSection">
-                                <h3>Finalize Outcome</h3>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <div class="switch-row">
-                                            <div class="switch-label">
-                                                <strong>Intervention Complete</strong>
-                                            </div>
-                                            <div class="fluent-switch">
-                                                <input 
-                                                    type="checkbox" 
-                                                    id="outcomesInterventionCompleteSwitch" 
-                                                    class="fluent-switch-input" 
-                                                    aria-label="Intervention Complete"
-                                                />
-                                                <label for="outcomesInterventionCompleteSwitch" class="fluent-switch-label">
-                                                    <span class="fluent-switch-slider" aria-hidden="true"></span>
-                                                </label>
-                                            </div>
-                                            <style>
-                                                .fluent-switch {
-                                                    position: relative;
-                                                    display: inline-block;
-                                                    width: 52px;
-                                                    height: 28px;
-                                                }
-                                                .fluent-switch-input {
-                                                    opacity: 0;
-                                                    width: 0;
-                                                    height: 0;
-                                                }
-                                                .fluent-switch-label {
-                                                    position: absolute;
-                                                    cursor: pointer;
-                                                    top: 0; left: 0; right: 0; bottom: 0;
-                                                    background: var(--colorNeutralBackground3, #eee);
-                                                    border-radius: 16px;
-                                                    transition: background 0.3s;
-                                                    border: 1.5px solid var(--colorNeutralStroke2, #c2c6cc);
-                                                }
-                                                .fluent-switch-slider {
-                                                    position: absolute;
-                                                    left: 3px;
-                                                    top: 3px;
-                                                    width: 22px;
-                                                    height: 22px;
-                                                    border-radius: 50%;
-                                                    background: var(--colorNeutralForeground1, #274472);
-                                                    transition: transform 0.25s cubic-bezier(.77,0,.18,1), background 0.25s;
-                                                    box-shadow: 0 1px 3px rgba(30,34,43,0.07);
-                                                }
-                                                .fluent-switch-input:checked + .fluent-switch-label {
-                                                    background: var(--colorBrandBackground, #005cb9);
-                                                    border-color: var(--colorBrandBackground, #005cb9);
-                                                }
-                                                .fluent-switch-input:checked + .fluent-switch-label .fluent-switch-slider {
-                                                    background: var(--colorBrandForegroundInverted, #fff);
-                                                    transform: translateX(24px);
-                                                }
-                                                .fluent-switch-input:focus + .fluent-switch-label {
-                                                    box-shadow: 0 0 0 2px var(--colorBrandBackground, #005cb9)55;
-                                                    outline: 0;
-                                                }
-                                            </style>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="outcomesFinalOutcome">Final Outcome</label>
-                                        <textarea id="outcomesFinalOutcome" class="form-control" rows="6" placeholder="Enter final outcome..."></textarea>
-                                    </div>
+                        <div>
+                            <h3 style="margin-bottom: var(--spacing-m);">Action Plans</h3>
+                            <div id="outcomesStudentModalActionPlans">
+                                <div class="loading">
+                                    <div class="spinner"></div>
+                                    Loading action plans...
                                 </div>
-
-                                <div class="modal-actions">
-                                    <button class="btn btn-secondary" onclick="closeOutcomesModal()">Cancel</button>
-                                    <button class="btn btn-primary" id="outcomesSaveBtn" onclick="saveOutcomeFinalization()">Save</button>
-                                </div>
-                                <div id="outcomesModalStatus" class="status" style="margin-top: var(--spacing-m);"></div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goal Review Modal - For marking a goal as complete -->
+        <div id="goalReviewModal" class="modal-overlay" style="display: none;">
+            <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="goalReviewModalTitle" style="max-width: 550px;">
+                <div class="modal-body" style="padding: var(--spacing-l);">
+                    <div class="student-context">
+                        <div class="student-context-top">
+                            <div style="min-width: 0;">
+                                <h2 id="goalReviewModalTitle" style="font-size: var(--fontSizeLarge);">Review Goal</h2>
+                            </div>
+                            <button class="modal-close-btn" onclick="closeGoalReviewModal()" aria-label="Close">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: var(--spacing-l);">
+                        <div style="background: var(--colorNeutralBackground2); padding: var(--spacing-m); border-radius: var(--radiusMedium); margin-bottom: var(--spacing-l);">
+                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); margin-bottom: var(--spacing-xs);">Goal</div>
+                            <div id="goalReviewModalGoalText" style="font-weight: var(--fontWeightSemibold);">—</div>
+                        </div>
+                        
+                        <div style="background: var(--colorNeutralBackground2); padding: var(--spacing-m); border-radius: var(--radiusMedium); margin-bottom: var(--spacing-l);">
+                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); margin-bottom: var(--spacing-xs);">Action Plan</div>
+                            <div id="goalReviewModalActionPlanText">—</div>
+                            <div style="display: flex; gap: var(--spacing-m); margin-top: var(--spacing-s);">
+                                <div>
+                                    <span style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground3);">Action by: </span>
+                                    <span id="goalReviewModalActionBy" style="font-size: var(--fontSizeSmall);">—</span>
+                                </div>
+                                <div>
+                                    <span style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground3);">Review date: </span>
+                                    <span id="goalReviewModalReviewDate" style="font-size: var(--fontSizeSmall);">—</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: var(--spacing-l);">
+                            <div class="switch-row" style="display: flex; align-items: center; gap: var(--spacing-m);">
+                                <div class="switch-label" style="flex: 1;">
+                                    <strong>Goal Completed</strong>
+                                    <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2);">Mark this goal as achieved</div>
+                                </div>
+                                <div class="fluent-switch">
+                                    <input 
+                                        type="checkbox" 
+                                        id="goalReviewCompletedSwitch" 
+                                        class="fluent-switch-input" 
+                                        aria-label="Goal Completed"
+                                    />
+                                    <label for="goalReviewCompletedSwitch" class="fluent-switch-label">
+                                        <span class="fluent-switch-slider" aria-hidden="true"></span>
+                                    </label>
+                                </div>
+                                <style>
+                                    .fluent-switch {
+                                        position: relative;
+                                        display: inline-block;
+                                        width: 52px;
+                                        height: 28px;
+                                    }
+                                    .fluent-switch-input {
+                                        opacity: 0;
+                                        width: 0;
+                                        height: 0;
+                                    }
+                                    .fluent-switch-label {
+                                        position: absolute;
+                                        cursor: pointer;
+                                        top: 0; left: 0; right: 0; bottom: 0;
+                                        background: var(--colorNeutralBackground3, #eee);
+                                        border-radius: 16px;
+                                        transition: background 0.3s;
+                                        border: 1.5px solid var(--colorNeutralStroke2, #c2c6cc);
+                                    }
+                                    .fluent-switch-slider {
+                                        position: absolute;
+                                        left: 3px;
+                                        top: 3px;
+                                        width: 22px;
+                                        height: 22px;
+                                        border-radius: 50%;
+                                        background: var(--colorNeutralForeground1, #274472);
+                                        transition: transform 0.25s cubic-bezier(.77,0,.18,1), background 0.25s;
+                                        box-shadow: 0 1px 3px rgba(30,34,43,0.07);
+                                    }
+                                    .fluent-switch-input:checked + .fluent-switch-label {
+                                        background: var(--colorBrandBackground, #005cb9);
+                                        border-color: var(--colorBrandBackground, #005cb9);
+                                    }
+                                    .fluent-switch-input:checked + .fluent-switch-label .fluent-switch-slider {
+                                        background: var(--colorBrandForegroundInverted, #fff);
+                                        transform: translateX(24px);
+                                    }
+                                    .fluent-switch-input:focus + .fluent-switch-label {
+                                        box-shadow: 0 0 0 2px var(--colorBrandBackground, #005cb9)55;
+                                        outline: 0;
+                                    }
+                                </style>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="goalReviewNotes">Completion Notes</label>
+                            <textarea id="goalReviewNotes" class="form-control" rows="4" placeholder="Enter notes about the goal outcome..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="modal-actions" style="margin-top: var(--spacing-l);">
+                        <button class="btn btn-secondary" onclick="closeGoalReviewModal()">Close</button>
+                        <button class="btn btn-primary" id="goalReviewSaveBtn" onclick="saveGoalReview()">Save</button>
+                    </div>
+                    <div id="goalReviewModalStatus" class="status" style="margin-top: var(--spacing-m);"></div>
                 </div>
             </div>
         </div>
@@ -1900,7 +2056,7 @@
 
         // Basic API key (NOTE: this is visible in the browser; use as a basic gate, not true secrecy)
         // Must match the server env var `AP_REFERRAL_API_KEY` (or `AP_API_KEY`).
-        const AP_REFERRAL_API_KEY = 'REPLACE_WITH_API_KEY';
+        const AP_REFERRAL_API_KEY = 'CZ59IuE0ZNH6P50wzbuLFMocMYwSBCpl';
 
         // Azure AD Configuration (for reference - actual auth is handled server-side)
         const AZURE_CONFIG = {
@@ -2872,39 +3028,13 @@
         }
 
         // ============================================================================
-        // OUTCOMES VIEW
+        // OUTCOMES VIEW - Review Action Plans by Student
         // ============================================================================
-        let outcomesPendingCases = [];
-        let outcomesCompletedCases = [];
-        let outcomesActiveCase = null;
-        let outcomesModalMode = 'pending'; // 'pending' | 'completed'
-
-        function getReferralIdFromCase(c) {
-            return c?.crd88_referraltoapid || c?.crd88_studentsupportcaseid || c?.id || null;
-        }
-
-        function getReviewDateFromCase(c) {
-            return c?.reviewDate || c?.crd88_ap_reviewdate || null;
-        }
-
-        function getActionPlanTextFromCase(c) {
-            return (c?.actionPlan ?? c?.crd88_ap_actionplan ?? '').toString();
-        }
-
-        function getActionByFromCase(c) {
-            return (c?.actionBy ?? c?.crd88_ap_actionby ?? '').toString();
-        }
-
-        function getStudentDisplayFromCase(c) {
-            // If expand worked, prefer it; otherwise fall back to GUID
-            const expanded = c?.crd88_new_students || c?.crd88_new_Students;
-            if (expanded && (expanded.new_fullname || expanded.crd88_indexnumber)) {
-                const name = expanded.new_fullname || 'Unknown';
-                const idx = expanded.crd88_indexnumber ? ` (${expanded.crd88_indexnumber})` : '';
-                return `${name}${idx}`;
-            }
-            return c?._crd88_new_students_value || '-';
-        }
+        let outcomesPendingStudents = []; // { studentId, studentName, refId, referralId, actionPlans: [...] }
+        let outcomesCompletedStudents = []; // same structure
+        let outcomesActiveStudent = null; // currently selected student
+        let outcomesActiveGoal = null; // currently selected goal for review modal
+        let outcomesAllActionPlans = []; // raw action plans from API
 
         function formatDateForDisplay(iso) {
             if (!iso) return '-';
@@ -2929,252 +3059,398 @@
             return !!el.checked;
         }
 
+        function isReviewDateDue(reviewDate) {
+            if (!reviewDate) return false;
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            const review = new Date(reviewDate);
+            review.setHours(0, 0, 0, 0);
+            return review <= today;
+        }
+
         async function loadOutcomes() {
             const pendingContainer = document.getElementById('pendingOutcomesContainer');
             const completedContainer = document.getElementById('completedOutcomesContainer');
-            pendingContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Loading pending cases...</div>';
-            completedContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Loading completed cases...</div>';
+            pendingContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Loading pending reviews...</div>';
+            completedContainer.innerHTML = '<div class="loading"><div class="spinner"></div>Loading completed reviews...</div>';
 
             try {
-                const [pendingRes, completedRes] = await Promise.all([
-                    apiCall(REFERRAL_API_BASE_URL, 'outcomesPending'),
-                    apiCall(REFERRAL_API_BASE_URL, 'outcomesCompleted')
-                ]);
+                // Fetch action plans that are due for review (reviewDate <= today)
+                const response = await apiCall(REFERRAL_API_BASE_URL, 'actionPlansForReview');
+                outcomesAllActionPlans = response.actionPlans || [];
 
-                outcomesPendingCases = pendingRes.cases || [];
-                outcomesCompletedCases = completedRes.cases || [];
+                // Group action plans by student
+                const pendingMap = {}; // studentId -> { studentInfo, actionPlans }
+                const completedMap = {};
 
-                document.getElementById('pendingCount').textContent = `${outcomesPendingCases.length}`;
-                document.getElementById('completedCount').textContent = `${outcomesCompletedCases.length}`;
+                for (const ap of outcomesAllActionPlans) {
+                    const studentId = ap.studentId || ap._crd88_new_students_value || '';
+                    const studentName = ap.studentName || ap.studentFullName || 'Unknown';
+                    const refId = ap.refId || ap.crd88_refid || '';
+                    const referralId = ap.referralId || ap.crd88_referraltoapid || '';
+                    const goalId = ap.goalId || ap.crd88_goalid || '';
+                    const goalText = ap.goalText || ap.crd88_goal || '';
+                    const actionPlanStatus = Number(ap.status ?? ap.crd88_actionplanstatus ?? 5);
+                    const goalCompleted = ap.goalCompleted ?? ap.crd88_completed ?? 0; // kept for display only
+                    const goalCompletionNotes = ap.goalCompletionNotes || ap.crd88_completionnotes || '';
+                    const actionPlanDetails = ap.actionPlanDetails || ap.crd88_actionplandetails || '';
+                    const actionBy = ap.actionBy || ap.crd88_actionby || '';
+                    const reviewDate = ap.reviewDate || ap.crd88_reviewdate || null;
+                    const actionPlanId = ap.actionPlanId || ap.crd88_actionplanid || '';
 
-                renderOutcomesTables();
+                    if (!studentId) continue;
+
+                    const apData = {
+                        actionPlanId,
+                        goalId,
+                        goalText,
+                        actionPlanStatus,
+                        goalCompleted: Number(goalCompleted) === 1,
+                        goalCompletionNotes,
+                        actionPlanDetails,
+                        actionBy,
+                        reviewDate,
+                        studentId,
+                        studentName,
+                        refId,
+                        referralId
+                    };
+
+                    // Split by goal completion (completed goals should move out of pending + not be overdue)
+                    const targetMap = apData.goalCompleted ? completedMap : pendingMap;
+
+                    if (!targetMap[studentId]) {
+                        targetMap[studentId] = {
+                            studentId,
+                            studentName,
+                            refId,
+                            referralId,
+                            actionPlans: []
+                        };
+                    }
+                    targetMap[studentId].actionPlans.push(apData);
+                }
+
+                // Convert maps to arrays
+                outcomesPendingStudents = Object.values(pendingMap);
+                outcomesCompletedStudents = Object.values(completedMap);
+
+                // Sort by student name
+                outcomesPendingStudents.sort((a, b) => (a.studentName || '').localeCompare(b.studentName || ''));
+                outcomesCompletedStudents.sort((a, b) => (a.studentName || '').localeCompare(b.studentName || ''));
+
+                // Update counts
+                document.getElementById('pendingCount').textContent = `${outcomesPendingStudents.length}`;
+                document.getElementById('completedCount').textContent = `${outcomesCompletedStudents.length}`;
+
+                renderOutcomesStudentsList();
             } catch (error) {
-                pendingContainer.innerHTML = `<div class="empty-state"><p>Error loading pending: ${error.message}</p></div>`;
-                completedContainer.innerHTML = `<div class="empty-state"><p>Error loading completed: ${error.message}</p></div>`;
+                pendingContainer.innerHTML = `<div class="empty-state"><p>Error loading: ${error.message}</p></div>`;
+                completedContainer.innerHTML = `<div class="empty-state"><p>Error loading: ${error.message}</p></div>`;
             }
         }
 
-        function renderOutcomesTables() {
+        function renderOutcomesStudentsList() {
             const pendingContainer = document.getElementById('pendingOutcomesContainer');
             const completedContainer = document.getElementById('completedOutcomesContainer');
 
-            // Pending
-            if (!outcomesPendingCases.length) {
-                pendingContainer.innerHTML = `<div class="empty-state"><p>No pending cases</p></div>`;
+            // Pending students
+            if (!outcomesPendingStudents.length) {
+                pendingContainer.innerHTML = `<div class="empty-state"><p>No pending reviews</p></div>`;
             } else {
-                pendingContainer.innerHTML = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Review Date</th>
-                                <th>Student</th>
-                                <th>Domains & Issues</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${outcomesPendingCases.map(c => `
-                                <tr class="clickable-row" onclick="openOutcomesModal('${getReferralIdFromCase(c)}', 'pending')">
-                                    <td>${formatDateForDisplay(getReviewDateFromCase(c))}</td>
-                                    <td>${escapeHtml(getStudentDisplayFromCase(c))}</td>
-                                    <td style="max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        ${escapeHtml((c.crd88_domainsandconditions || '').replace(/\\s+/g, ' ').trim() || '-')}
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            }
-
-            // Completed
-            if (!outcomesCompletedCases.length) {
-                completedContainer.innerHTML = `<div class="empty-state"><p>No completed cases</p></div>`;
-            } else {
-                completedContainer.innerHTML = `
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Review Date</th>
-                                <th>Student</th>
-                                <th>Final Outcome</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${outcomesCompletedCases.map(c => `
-                                <tr class="clickable-row" onclick="openOutcomesModal('${getReferralIdFromCase(c)}', 'completed')">
-                                    <td>${formatDateForDisplay(getReviewDateFromCase(c))}</td>
-                                    <td>${escapeHtml(getStudentDisplayFromCase(c))}</td>
-                                    <td style="max-width: 360px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                        ${escapeHtml((c.crd88_referralfinaloutcome || '').replace(/\\s+/g, ' ').trim() || '-')}
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                `;
-            }
-        }
-
-        function findCaseById(caseId) {
-            return outcomesPendingCases.find(c => getReferralIdFromCase(c) === caseId) ||
-                outcomesCompletedCases.find(c => getReferralIdFromCase(c) === caseId) ||
-                null;
-        }
-
-        async function openOutcomesModal(caseId, mode) {
-            const c = findCaseById(caseId);
-            if (!c) return;
-
-            outcomesActiveCase = c;
-            outcomesModalMode = mode;
-
-            // Left column (student context)
-            const studentName = getStudentDisplayFromCase(c);
-            document.getElementById('outcomesStudentName').textContent = studentName || 'Student';
-            document.getElementById('outcomesRefId').textContent = c.crd88_refid || '—';
-            document.getElementById('outcomesReviewDatePill').textContent = formatDateForDisplay(getReviewDateFromCase(c));
-
-            // Domains
-            const parsed = parseDomainsAndIssuesText(c.crd88_domainsandconditions || '');
-            const domainsDiv = document.getElementById('outcomesDomains');
-            if (!parsed.length) {
-                domainsDiv.textContent = 'No domains/conditions recorded.';
-            } else {
-                domainsDiv.innerHTML = parsed.map(d => `
-                    <div style="margin-bottom: var(--spacing-m);">
-                        <div style="font-weight: var(--fontWeightSemibold); color: var(--colorBrandBackground); margin-bottom: var(--spacing-xs);">${escapeHtml(d.domain)}:</div>
-                        <div style="padding-left: var(--spacing-m);">
-                            ${d.conditions.map(x => `<div style="margin: 2px 0;">${escapeHtml(x)}</div>`).join('')}
+                const rows = outcomesPendingStudents.map(s => {
+                    const pendingCount = s.actionPlans.filter(ap => !ap.goalCompleted).length;
+                    const overdueCount = s.actionPlans.filter(ap => !ap.goalCompleted && isReviewDateDue(ap.reviewDate)).length;
+                    
+                    return `
+                        <div class="outcomes-student-card" onclick="openOutcomesStudentModal('${s.studentId}', 'pending')">
+                            <div class="outcomes-student-info">
+                                <div class="outcomes-student-name">${escapeHtml(s.studentName)}</div>
+                                <div class="outcomes-student-meta">
+                                    ${s.refId ? `Ref: ${escapeHtml(s.refId)}` : ''}
+                                    ${pendingCount > 0 ? ` · ${pendingCount} action plan${pendingCount !== 1 ? 's' : ''}` : ''}
+                                </div>
+                            </div>
+                            ${overdueCount > 0 ? `<span class="outcomes-badge warning">${overdueCount} overdue</span>` : ''}
+                            <div style="color: var(--colorNeutralForeground3);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `;
+                }).join('');
+                pendingContainer.innerHTML = `<div style="display: grid; gap: var(--spacing-s);">${rows}</div>`;
             }
 
-            // Strengths
-            const strengthsDiv = document.getElementById('outcomesStrengths');
-            if (strengthsDiv) {
-                const strengths = (c.crd88_strengths || '').trim();
-                strengthsDiv.textContent = strengths || '—';
-                strengthsDiv.className = strengths ? 'readonly-field' : 'readonly-field muted';
-            }
-
-            // Quick reference (styled text)
-            document.getElementById('outcomesActionPlan').textContent = getActionPlanTextFromCase(c).trim() || '—';
-            document.getElementById('outcomesActionBy').textContent = getActionByFromCase(c).trim() || '—';
-            document.getElementById('outcomesReviewDate').textContent = formatDateForDisplay(getReviewDateFromCase(c));
-
-            // Goals are stored as child records; fetch them when opening (best-effort)
-            const goalsEl = document.getElementById('outcomesGoals');
-            goalsEl.textContent = 'Loading...';
-            try {
-                const apId = c.actionPlanId || c?.latestActionPlan?.crd88_actionplanid || null;
-                if (apId) {
-                    const gres = await apiCall(REFERRAL_API_BASE_URL, `listGoalsByActionPlan&actionPlanId=${encodeURIComponent(apId)}`);
-                    const lines = (gres.goalsNormalized || []).map(g => (g.text || '').trim()).filter(Boolean);
-                    const goalsText = lines.join('\n').trim();
-                    c._goalsText = goalsText;
-                    goalsEl.textContent = goalsText || '—';
-                } else {
-                    goalsEl.textContent = '—';
-                }
-            } catch (_) {
-                goalsEl.textContent = '—';
-            }
-
-            // Finalization section
-            const finalize = document.getElementById('outcomesFinalizeSection');
-            const status = document.getElementById('outcomesModalStatus');
-            if (status) { status.className = 'status'; status.textContent = ''; }
-
-            if (mode === 'pending') {
-                finalize.style.display = 'block';
-                // prefill current values (if any)
-                setSwitchValue('outcomesInterventionCompleteSwitch', (typeof c.crd88_referralcompleted === 'boolean') ? c.crd88_referralcompleted : null);
-                document.getElementById('outcomesFinalOutcome').value = c.crd88_referralfinaloutcome || '';
-                document.getElementById('outcomesFinalOutcome').disabled = false;
-                document.getElementById('outcomesSaveBtn').disabled = false;
-                document.getElementById('outcomesInterventionCompleteSwitch').disabled = false;
+            // Completed students
+            if (!outcomesCompletedStudents.length) {
+                completedContainer.innerHTML = `<div class="empty-state"><p>No completed reviews</p></div>`;
             } else {
-                finalize.style.display = 'block';
-                // show values but disable edits
-                setSwitchValue('outcomesInterventionCompleteSwitch', (typeof c.crd88_referralcompleted === 'boolean') ? c.crd88_referralcompleted : null);
-                document.getElementById('outcomesFinalOutcome').value = c.crd88_referralfinaloutcome || '';
-                document.getElementById('outcomesFinalOutcome').disabled = true;
-                document.getElementById('outcomesSaveBtn').disabled = true;
-                document.getElementById('outcomesInterventionCompleteSwitch').disabled = true;
+                const rows = outcomesCompletedStudents.map(s => {
+                    const completedCount = s.actionPlans.filter(ap => ap.goalCompleted).length;
+                    
+                    return `
+                        <div class="outcomes-student-card" onclick="openOutcomesStudentModal('${s.studentId}', 'completed')">
+                            <div class="outcomes-student-info">
+                                <div class="outcomes-student-name">${escapeHtml(s.studentName)}</div>
+                                <div class="outcomes-student-meta">
+                                    ${s.refId ? `Ref: ${escapeHtml(s.refId)}` : ''}
+                                    ${completedCount > 0 ? ` · ${completedCount} completed action plan${completedCount !== 1 ? 's' : ''}` : ''}
+                                </div>
+                            </div>
+                            <span class="outcomes-badge success">${completedCount} done</span>
+                            <div style="color: var(--colorNeutralForeground3);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                completedContainer.innerHTML = `<div style="display: grid; gap: var(--spacing-s);">${rows}</div>`;
             }
-
-            document.getElementById('outcomesModal').style.display = 'block';
         }
 
-        function closeOutcomesModal() {
-            const modal = document.getElementById('outcomesModal');
-            if (modal) modal.style.display = 'none';
-            outcomesActiveCase = null;
+        function openOutcomesStudentModal(studentId, mode) {
+            // Find student in either pending or completed
+            const student = mode === 'pending' 
+                ? outcomesPendingStudents.find(s => s.studentId === studentId)
+                : outcomesCompletedStudents.find(s => s.studentId === studentId);
+            
+            if (!student) return;
+
+            outcomesActiveStudent = { ...student, mode };
+
+            // Update modal header
+            document.getElementById('outcomesStudentModalName').textContent = student.studentName || 'Student';
+            document.getElementById('outcomesStudentModalRefId').textContent = student.refId || '—';
+
+            // Populate referral summary (from crd88_referraltoaps table)
+            loadOutcomesReferralSummary();
+
+            // Render action plans list
+            renderOutcomesActionPlansList();
+
+            document.getElementById('outcomesStudentModal').style.display = 'block';
         }
 
-        async function saveOutcomeFinalization() {
-            const referralId = getReferralIdFromCase(outcomesActiveCase);
-            if (!referralId) return;
+        async function loadOutcomesReferralSummary() {
+            const strengthsEl = document.getElementById('outcomesStudentModalStrengths');
+            const domainsEl = document.getElementById('outcomesStudentModalDomains');
+            const notesEl = document.getElementById('outcomesStudentModalMeetingNotes');
 
-            const btn = document.getElementById('outcomesSaveBtn');
-            btn.disabled = true;
-            btn.textContent = 'Saving...';
+            if (strengthsEl) strengthsEl.textContent = 'Loading…';
+            if (domainsEl) domainsEl.textContent = 'Loading…';
+            if (notesEl) { notesEl.textContent = 'Loading…'; }
 
-            const interventionComplete = getSwitchValue('outcomesInterventionCompleteSwitch');
-            const finalOutcome = (document.getElementById('outcomesFinalOutcome').value || '').trim();
-
-            // interventionComplete always boolean with switch
-
-            if (!finalOutcome) {
-                const status = document.getElementById('outcomesModalStatus');
-                status.textContent = 'Please enter a Final Outcome.';
-                status.className = 'status error';
-                btn.disabled = false;
-                btn.textContent = 'Save';
+            const referralId = outcomesActiveStudent?.referralId || outcomesActiveStudent?.actionPlans?.[0]?.referralId || null;
+            if (!referralId) {
+                if (strengthsEl) strengthsEl.textContent = '—';
+                if (domainsEl) domainsEl.textContent = '—';
+                if (notesEl) { notesEl.textContent = '—'; }
                 return;
             }
 
+            let referral = null;
             try {
-                const url = `${REFERRAL_API_BASE_URL}?action=updateCase&caseId=${encodeURIComponent(referralId)}`;
-                const payload = {
-                    interventionComplete,
-                    finalOutcome
-                };
+                const res = await apiCall(REFERRAL_API_BASE_URL, `getReferral&referralId=${encodeURIComponent(referralId)}`);
+                referral = res?.referral || null;
+            } catch (_) {
+                referral = null;
+            }
 
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
-                    body: JSON.stringify(payload)
+            const strengths = (referral?.crd88_strengths || '').toString().trim();
+            const domainsText = (referral?.crd88_domainsandconditions || '').toString();
+            const meetingNotes = (referral?.crd88_meetingnotes || '').toString().trim();
+
+            if (strengthsEl) strengthsEl.textContent = strengths || '—';
+            if (notesEl) {
+                notesEl.textContent = meetingNotes || '—';
+                notesEl.className = meetingNotes ? 'domains-empty' : 'domains-empty muted';
+            }
+
+            if (!domainsEl) return;
+            const parsed = parseDomainsAndIssuesText(domainsText);
+            if (!parsed.length) {
+                domainsEl.textContent = '—';
+                return;
+            }
+            domainsEl.innerHTML = parsed.map(d => `
+                <div style="margin-bottom: var(--spacing-m);">
+                    <div style="font-weight: var(--fontWeightSemibold); color: var(--colorBrandBackground); margin-bottom: var(--spacing-xs);">${escapeHtml(d.domain)}:</div>
+                    <div style="padding-left: var(--spacing-m);">
+                        ${d.conditions.map(c => `<div style="margin: 2px 0;">${escapeHtml(c)}</div>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderOutcomesActionPlansList() {
+            const container = document.getElementById('outcomesStudentModalActionPlans');
+            if (!outcomesActiveStudent) {
+                container.innerHTML = '<div class="empty-state"><p>No data</p></div>';
+                return;
+            }
+
+            const actionPlans = outcomesActiveStudent.actionPlans || [];
+            if (!actionPlans.length) {
+                container.innerHTML = '<div class="empty-state"><p>No action plans found</p></div>';
+                return;
+            }
+
+            // Sort: overdue first, then by date
+            const sorted = [...actionPlans].sort((a, b) => {
+                // Completed items go last
+                if (a.goalCompleted !== b.goalCompleted) return a.goalCompleted ? 1 : -1;
+                // Then by whether overdue
+                const aOverdue = isReviewDateDue(a.reviewDate);
+                const bOverdue = isReviewDateDue(b.reviewDate);
+                if (aOverdue !== bOverdue) return aOverdue ? -1 : 1;
+                // Then by date
+                return new Date(a.reviewDate || 0) - new Date(b.reviewDate || 0);
+            });
+
+            const rows = sorted.map(ap => {
+                const isOverdue = !ap.goalCompleted && isReviewDateDue(ap.reviewDate);
+                const isCompleted = ap.goalCompleted;
+
+                // Warning icon SVG
+                const warningIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>`;
+
+                // Check/tick icon SVG
+                const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>`;
+
+                // Chevron icon
+                const chevronIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>`;
+
+                return `
+                    <div class="action-plan-review-item ${isCompleted ? 'completed' : ''}" onclick="openGoalReviewModal('${ap.goalId}', '${ap.actionPlanId}')">
+                        <div class="action-plan-icon ${isOverdue ? 'warning' : ''} ${isCompleted ? 'success' : ''}">
+                            ${isCompleted ? checkIcon : (isOverdue ? warningIcon : '')}
+                        </div>
+                        <div class="action-plan-content">
+                            <div class="action-plan-goal">${escapeHtml(ap.goalText || 'No goal text')}</div>
+                            <div class="action-plan-details">${escapeHtml(ap.actionPlanDetails || 'No action plan details')}</div>
+                            <div class="action-plan-meta">
+                                <span>Action by: ${escapeHtml(ap.actionBy || '—')}</span>
+                                <span>Review: ${formatDateForDisplay(ap.reviewDate)}</span>
+                            </div>
+                        </div>
+                        <div class="action-plan-chevron">${chevronIcon}</div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = rows;
+        }
+
+        function closeOutcomesStudentModal() {
+            const modal = document.getElementById('outcomesStudentModal');
+            if (modal) modal.style.display = 'none';
+            outcomesActiveStudent = null;
+        }
+
+        function openGoalReviewModal(goalId, actionPlanId) {
+            // Find the action plan data
+            const ap = outcomesActiveStudent?.actionPlans?.find(
+                a => String(a.goalId) === String(goalId) && String(a.actionPlanId) === String(actionPlanId)
+            );
+            if (!ap) return;
+
+            outcomesActiveGoal = { ...ap };
+
+            // Populate modal fields
+            document.getElementById('goalReviewModalGoalText').textContent = ap.goalText || '—';
+            document.getElementById('goalReviewModalActionPlanText').textContent = ap.actionPlanDetails || '—';
+            document.getElementById('goalReviewModalActionBy').textContent = ap.actionBy || '—';
+            document.getElementById('goalReviewModalReviewDate').textContent = formatDateForDisplay(ap.reviewDate);
+
+            // Set switch value
+            setSwitchValue('goalReviewCompletedSwitch', ap.goalCompleted);
+            document.getElementById('goalReviewNotes').value = ap.goalCompletionNotes || '';
+
+            // Clear status
+            const status = document.getElementById('goalReviewModalStatus');
+            if (status) { status.className = 'status'; status.textContent = ''; }
+
+            document.getElementById('goalReviewModal').style.display = 'block';
+        }
+
+        function closeGoalReviewModal() {
+            const modal = document.getElementById('goalReviewModal');
+            if (modal) modal.style.display = 'none';
+            outcomesActiveGoal = null;
+        }
+
+        async function saveGoalReview() {
+            if (!outcomesActiveGoal) return;
+
+            const btn = document.getElementById('goalReviewSaveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const completed = getSwitchValue('goalReviewCompletedSwitch');
+            const completionNotes = (document.getElementById('goalReviewNotes').value || '').trim();
+
+            try {
+                // Call API to update goal completion status
+                await apiCall(REFERRAL_API_BASE_URL, 'updateGoalCompletion', 'POST', {
+                    goalId: outcomesActiveGoal.goalId,
+                    completed: !!completed,
+                    completionNotes
                 });
 
-                const raw = await response.text();
-                let parsed = null;
-                try { parsed = raw ? JSON.parse(raw) : null; } catch (_) {}
-                if (!response.ok) {
-                    const msg = (parsed && (parsed.error || parsed.message)) ? (parsed.error || parsed.message) : (raw || `HTTP ${response.status}`);
-                    throw new Error(msg);
+                // Update local state
+                outcomesActiveGoal.goalCompleted = completed;
+                outcomesActiveGoal.goalCompletionNotes = completionNotes;
+
+                // Update in the student's action plans array
+                if (outcomesActiveStudent) {
+                    const idx = outcomesActiveStudent.actionPlans.findIndex(
+                        a => String(a.goalId) === String(outcomesActiveGoal.goalId) && 
+                             String(a.actionPlanId) === String(outcomesActiveGoal.actionPlanId)
+                    );
+                    if (idx !== -1) {
+                        outcomesActiveStudent.actionPlans[idx].goalCompleted = completed;
+                        outcomesActiveStudent.actionPlans[idx].goalCompletionNotes = completionNotes;
+                    }
                 }
 
-                // Update local cache: move from pending -> completed
-                outcomesActiveCase.crd88_referralcompleted = interventionComplete;
-                outcomesActiveCase.crd88_referralfinaloutcome = finalOutcome;
+                // Re-render the action plans list in the student modal
+                renderOutcomesActionPlansList();
 
-                outcomesPendingCases = outcomesPendingCases.filter(c => getReferralIdFromCase(c) !== referralId);
-                outcomesCompletedCases = [outcomesActiveCase, ...outcomesCompletedCases];
+                // If goal is now completed and was in pending, we may need to move student
+                // Refresh the full view data to properly categorize
+                await loadOutcomes();
 
-                document.getElementById('pendingCount').textContent = `${outcomesPendingCases.length}`;
-                document.getElementById('completedCount').textContent = `${outcomesCompletedCases.length}`;
-                renderOutcomesTables();
-
-                const status = document.getElementById('outcomesModalStatus');
-                status.textContent = 'Saved successfully.';
+                const status = document.getElementById('goalReviewModalStatus');
+                status.textContent = 'Saved successfully!';
                 status.className = 'status success';
 
                 btn.disabled = false;
                 btn.textContent = 'Save';
+
+                // Close modal after a brief delay
+                setTimeout(() => {
+                    closeGoalReviewModal();
+                    // Also close student modal if all goals are now complete
+                    if (outcomesActiveStudent && outcomesActiveStudent.actionPlans.every(ap => ap.goalCompleted)) {
+                        closeOutcomesStudentModal();
+                    }
+                }, 800);
+
             } catch (e) {
-                const status = document.getElementById('outcomesModalStatus');
+                const status = document.getElementById('goalReviewModalStatus');
                 status.textContent = `Error saving: ${e.message}`;
                 status.className = 'status error';
                 btn.disabled = false;

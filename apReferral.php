@@ -1649,10 +1649,35 @@ try {
                 exit;
             }
 
-            $select = urlencode("{$REFERRAL_ID_FIELD},{$REFERRAL_REFID_FIELD},{$REFERRAL_DOMAINS_ISSUES_FIELD},{$REFERRAL_STRENGTHS_FIELD},{$REFERRAL_FINAL_OUTCOME_FIELD},{$REFERRAL_INTERVENTION_COMPLETE_FIELD},createdon,_{$REFERRAL_STUDENT_FIELD}_value");
+            $selectFields = [
+                $REFERRAL_ID_FIELD,
+                $REFERRAL_REFID_FIELD,
+                $REFERRAL_FINAL_OUTCOME_FIELD,
+                $REFERRAL_INTERVENTION_COMPLETE_FIELD,
+                'createdon',
+                "_{$REFERRAL_STUDENT_FIELD}_value",
+            ];
+            if (!empty($REFERRAL_DOMAINS_ISSUES_FIELD)) $selectFields[] = $REFERRAL_DOMAINS_ISSUES_FIELD;
+            if (!empty($REFERRAL_STRENGTHS_FIELD)) $selectFields[] = $REFERRAL_STRENGTHS_FIELD;
+            if (!empty($REFERRAL_MEETING_NOTES_FIELD)) $selectFields[] = $REFERRAL_MEETING_NOTES_FIELD;
+            if (!empty($REFERRAL_TRIGGER_SUBJECTS_FIELD)) $selectFields[] = $REFERRAL_TRIGGER_SUBJECTS_FIELD;
+            if (!empty($REFERRAL_PREFERRED_SUBJECTS_FIELD)) $selectFields[] = $REFERRAL_PREFERRED_SUBJECTS_FIELD;
+            $select = urlencode(implode(',', $selectFields));
             $expand = urlencode("{$REFERRAL_STUDENT_NAV}(\$select={$STUDENT_NAME_FIELD},{$STUDENT_NUMBER_FIELD})");
+
+            // Prefer expanded student, but fall back to no-expand if this environment uses a different nav property.
             $url = "{$DATAVERSE_URL}/api/data/v9.2/{$REFERRAL_TABLE}({$referralId})?\$select={$select}&\$expand={$expand}";
             $result = makeDataverseRequest('GET', $url, $accessToken);
+            if (($result['status'] ?? 0) !== 200) {
+                $invalid = dataverseInvalidProperty($result['body'] ?? '');
+                if ($invalid && strcasecmp($invalid, $REFERRAL_STUDENT_NAV) === 0) {
+                    $url2 = "{$DATAVERSE_URL}/api/data/v9.2/{$REFERRAL_TABLE}({$referralId})?\$select={$select}";
+                    $result2 = makeDataverseRequest('GET', $url2, $accessToken);
+                    if (($result2['status'] ?? 0) === 200) {
+                        $result = $result2;
+                    }
+                }
+            }
 
             if ($result['status'] === 200) {
                 $data = json_decode($result['body'], true);
@@ -1666,9 +1691,266 @@ try {
             }
             break;
             
+        case 'actionPlansForReview':
+            $debug = (($queryParams['debug'] ?? '') === '1');
+
+            // Status-only filter:
+            // - status is Pending (5) or Completed (7)
+            $apFilterRaw = "({$ACTIONPLAN_STATUS_FIELD} eq 5 or {$ACTIONPLAN_STATUS_FIELD} eq 7)";
+            $apFilter = urlencode($apFilterRaw);
+            $apSelect = urlencode("{$ACTIONPLAN_ID_FIELD},{$ACTIONPLAN_ACTIONID_FIELD},{$ACTIONPLAN_TEXT_FIELD},{$ACTIONPLAN_ACTION_BY_FIELD},{$ACTIONPLAN_REVIEW_DATE_FIELD},{$ACTIONPLAN_STATUS_FIELD},createdon");
+            $apOrder = urlencode("{$ACTIONPLAN_REVIEW_DATE_FIELD} asc");
+            $apUrl = "{$DATAVERSE_URL}/api/data/v9.2/{$ACTIONPLAN_TABLE}?\$filter={$apFilter}&\$select={$apSelect}&\$orderby={$apOrder}";
+            $apRes = makeDataverseRequest('GET', $apUrl, $accessToken);
+
+            if ($apRes['status'] !== 200) {
+                http_response_code($apRes['status']);
+                echo json_encode(['error' => 'Failed to fetch action plans', 'details' => $apRes['body']]);
+                break;
+            }
+
+            $apData = json_decode($apRes['body'], true);
+            $actionPlans = $apData['value'] ?? [];
+            $enrichedPlans = [];
+
+            // Discover ReferralToAP -> Goal lookup attribute (for filtering referrals by goal)
+            $refToGoalRels = discoverManyToOneRelationshipToTarget($DATAVERSE_URL, $accessToken, $REFERRAL_TABLE_LOGICAL, $GOAL_TABLE_LOGICAL);
+            $refGoalLookupAttrs = [];
+            foreach ($refToGoalRels as $r) {
+                if (!empty($r['attr'])) $refGoalLookupAttrs[] = $r['attr'];
+            }
+            // Fallback guesses
+            $refGoalLookupAttrs[] = 'crd88_goals';
+            $refGoalLookupAttrs[] = 'crd88_goal';
+            $refGoalLookupAttrs[] = 'crd88_goalid';
+
+            // Discover Goal -> ActionPlan lookup attribute (for filtering goals by action plan)
+            $goalToApRels = discoverManyToOneRelationshipToTarget($DATAVERSE_URL, $accessToken, $GOAL_TABLE_LOGICAL, $ACTIONPLAN_TABLE_LOGICAL);
+            $goalApLookupAttrs = [];
+            foreach ($goalToApRels as $r) {
+                if (!empty($r['attr'])) $goalApLookupAttrs[] = $r['attr'];
+            }
+            $goalApLookupAttrs[] = $GOAL_ACTIONPLAN_LOOKUP_FIELD; // usually 'crd88_actionplan'
+            $goalApLookupAttrs[] = 'crd88_actionplan';
+            $goalApLookupAttrs[] = 'crd88_actionplanid';
+
+            $goalByActionPlanId = [];      // apId -> [goal...]
+            $referralByGoalId = [];        // goalId -> referral row (with expanded student)
+            $studentById = [];             // studentId -> student row (cached)
+
+            foreach ($actionPlans as $ap) {
+                $apId = $ap[$ACTIONPLAN_ID_FIELD] ?? null;
+                if (isBlank($apId)) continue;
+
+                // 1) Find goal(s) linked to this action plan (Goal -> ActionPlan lookup)
+                if (!isset($goalByActionPlanId[$apId])) {
+                    $goals = [];
+                    foreach ($goalApLookupAttrs as $lk) {
+                        if (isBlank($lk)) continue;
+                        $gFilter = urlencode("_{$lk}_value eq {$apId}");
+                        $gSelect = urlencode("{$GOAL_ID_FIELD},{$GOAL_NAME_FIELD},{$GOAL_TEXT_FIELD},crd88_completed,crd88_completionnotes,createdon,_{$lk}_value");
+                        $gUrl = "{$DATAVERSE_URL}/api/data/v9.2/{$GOAL_TABLE}?\$filter={$gFilter}&\$select={$gSelect}";
+                        $gRes = makeDataverseRequest('GET', $gUrl, $accessToken);
+                        if (($gRes['status'] ?? 0) !== 200) {
+                            $invalid = dataverseInvalidProperty($gRes['body'] ?? '');
+                            if ($invalid && (strcasecmp($invalid, $lk) === 0 || strcasecmp($invalid, "_{$lk}_value") === 0)) continue;
+                            continue;
+                        }
+                        $gData = json_decode($gRes['body'] ?? '', true);
+                        $goals = $gData['value'] ?? [];
+                        break;
+                    }
+                    $goalByActionPlanId[$apId] = $goals;
+                }
+
+                $goals = $goalByActionPlanId[$apId] ?? [];
+                if (empty($goals)) continue;
+
+                foreach ($goals as $goal) {
+                    $goalId = $goal[$GOAL_ID_FIELD] ?? null;
+                    if (isBlank($goalId)) continue;
+
+                    // 2) Find referral linked to this goal (ReferralToAP -> Goal lookup)
+                    if (!isset($referralByGoalId[$goalId])) {
+                        $referralRow = null;
+                        foreach ($refGoalLookupAttrs as $lk) {
+                            if (isBlank($lk)) continue;
+                            $rFilter = urlencode("_{$lk}_value eq {$goalId}");
+                            $rFields = [
+                                $REFERRAL_ID_FIELD,
+                                $REFERRAL_REFID_FIELD,
+                                "_{$REFERRAL_STUDENT_FIELD}_value",
+                            ];
+                            if (!empty($REFERRAL_STRENGTHS_FIELD)) $rFields[] = $REFERRAL_STRENGTHS_FIELD;
+                            if (!empty($REFERRAL_DOMAINS_ISSUES_FIELD)) $rFields[] = $REFERRAL_DOMAINS_ISSUES_FIELD;
+                            if (!empty($REFERRAL_MEETING_NOTES_FIELD)) $rFields[] = $REFERRAL_MEETING_NOTES_FIELD;
+                            $rSelect = urlencode(implode(',', $rFields));
+                            $rExpand = urlencode("{$REFERRAL_STUDENT_NAV}(\$select={$STUDENT_NAME_FIELD},{$STUDENT_NUMBER_FIELD})");
+
+                            // Prefer expanded student, but fall back to non-expanded if expand fails in this environment
+                            $rUrl = "{$DATAVERSE_URL}/api/data/v9.2/{$REFERRAL_TABLE}?\$filter={$rFilter}&\$select={$rSelect}&\$expand={$rExpand}&\$top=1";
+                            $rRes = makeDataverseRequest('GET', $rUrl, $accessToken);
+                            if (($rRes['status'] ?? 0) !== 200) {
+                                // If expand failed due to missing nav property, retry without expand
+                                $invalid = dataverseInvalidProperty($rRes['body'] ?? '');
+                                if ($invalid && strcasecmp($invalid, $REFERRAL_STUDENT_NAV) === 0) {
+                                    $rUrl2 = "{$DATAVERSE_URL}/api/data/v9.2/{$REFERRAL_TABLE}?\$filter={$rFilter}&\$select={$rSelect}&\$top=1";
+                                    $rRes2 = makeDataverseRequest('GET', $rUrl2, $accessToken);
+                                    if (($rRes2['status'] ?? 0) === 200) {
+                                        $rData = json_decode($rRes2['body'] ?? '', true);
+                                        $items = $rData['value'] ?? [];
+                                        $referralRow = !empty($items) ? $items[0] : null;
+                                        break;
+                                    }
+                                }
+
+                                // If the lookup field doesn't exist, try next lookup attr
+                                if ($invalid && (strcasecmp($invalid, $lk) === 0 || strcasecmp($invalid, "_{$lk}_value") === 0)) continue;
+                                continue;
+                            }
+
+                            $rData = json_decode($rRes['body'] ?? '', true);
+                            $items = $rData['value'] ?? [];
+                            $referralRow = !empty($items) ? $items[0] : null;
+                            break;
+                        }
+                        $referralByGoalId[$goalId] = $referralRow;
+                    }
+
+                    $referral = $referralByGoalId[$goalId];
+                    if (!$referral) continue;
+
+                    $referralId = $referral[$REFERRAL_ID_FIELD] ?? null;
+                    $studentId = $referral["_{$REFERRAL_STUDENT_FIELD}_value"] ?? null;
+                    if (isBlank($referralId) || isBlank($studentId)) continue;
+
+                    $expanded = $referral[$REFERRAL_STUDENT_NAV] ?? null;
+                    $studentName = is_array($expanded) ? ($expanded[$STUDENT_NAME_FIELD] ?? 'Unknown') : null;
+                    $studentNumber = is_array($expanded) ? ($expanded[$STUDENT_NUMBER_FIELD] ?? '') : null;
+
+                    // If expand wasn't available, fetch student record (cached)
+                    if ($studentName === null || $studentNumber === null) {
+                        if (!isset($studentById[$studentId])) {
+                            $sSelect = urlencode("{$STUDENT_ID_FIELD},{$STUDENT_NAME_FIELD},{$STUDENT_NUMBER_FIELD}");
+                            $sUrl = "{$DATAVERSE_URL}/api/data/v9.2/{$STUDENTS_TABLE}({$studentId})?\$select={$sSelect}";
+                            $sRes = makeDataverseRequest('GET', $sUrl, $accessToken);
+                            $studentById[$studentId] = ($sRes['status'] === 200) ? json_decode($sRes['body'] ?? '', true) : null;
+                        }
+                        $s = $studentById[$studentId];
+                        $studentName = $studentName ?? (is_array($s) ? ($s[$STUDENT_NAME_FIELD] ?? 'Unknown') : 'Unknown');
+                        $studentNumber = $studentNumber ?? (is_array($s) ? ($s[$STUDENT_NUMBER_FIELD] ?? '') : '');
+                    }
+
+                    $enrichedPlans[] = [
+                        'actionPlanId' => $apId,
+                        'actionPlanDetails' => $ap[$ACTIONPLAN_TEXT_FIELD] ?? '',
+                        'actionBy' => $ap[$ACTIONPLAN_ACTION_BY_FIELD] ?? '',
+                        'reviewDate' => $ap[$ACTIONPLAN_REVIEW_DATE_FIELD] ?? null,
+                        'status' => $ap[$ACTIONPLAN_STATUS_FIELD] ?? 5,
+                        'referralId' => $referralId,
+                        'refId' => $referral[$REFERRAL_REFID_FIELD] ?? '',
+                        'studentId' => $studentId,
+                        'studentName' => $studentName,
+                        'studentNumber' => $studentNumber,
+                        'strengths' => $referral[$REFERRAL_STRENGTHS_FIELD] ?? '',
+                        'domainsAndConditions' => $referral[$REFERRAL_DOMAINS_ISSUES_FIELD] ?? '',
+                        'meetingNotes' => $referral[$REFERRAL_MEETING_NOTES_FIELD] ?? '',
+                        'goalId' => $goalId,
+                        'goalText' => $goal[$GOAL_TEXT_FIELD] ?? '',
+                        'goalCompleted' => $goal['crd88_completed'] ?? 0,
+                        'goalCompletionNotes' => $goal['crd88_completionnotes'] ?? '',
+                    ];
+                }
+            }
+
+            $out = [
+                'success' => true,
+                'actionPlans' => $enrichedPlans
+            ];
+            if ($debug) {
+                $out['debug'] = [
+                    'apFilterRaw' => $apFilterRaw,
+                    'actionPlansFetched' => count($actionPlans),
+                    'actionPlansEnriched' => count($enrichedPlans),
+                ];
+            }
+            echo json_encode($out);
+            break;
+
+        case 'updateGoalCompletion':
+            // POST /api/apReferral.php?action=updateGoalCompletion
+            // Body: { goalId, completed (boolean or 0/1), completionNotes }
+            // Updates the crd88_completed and crd88_completionnotes fields on the Goal table
+            
+            if ($method !== 'POST' && $method !== 'PATCH') {
+                http_response_code(405);
+                echo json_encode(['error' => 'Method not allowed. Use POST or PATCH.']);
+                exit;
+            }
+            
+            if (!$requestBody) {
+                http_response_code(400);
+                echo json_encode(['error' => 'Request body is required']);
+                exit;
+            }
+            
+            $goalId = $requestBody['goalId'] ?? null;
+            if (!$goalId) {
+                http_response_code(400);
+                echo json_encode(['error' => 'goalId is required']);
+                exit;
+            }
+            
+            $completed = $requestBody['completed'] ?? null;
+            if ($completed === null) {
+                http_response_code(400);
+                echo json_encode(['error' => 'completed is required (boolean or 0/1)']);
+                exit;
+            }
+            
+            $completionNotes = $requestBody['completionNotes'] ?? '';
+
+            // Dataverse expects Edm.Boolean for boolean columns
+            $completedBool = null;
+            if (is_bool($completed)) {
+                $completedBool = $completed;
+            } else if (is_int($completed) || is_float($completed) || (is_string($completed) && is_numeric($completed))) {
+                $completedBool = ((int)$completed) === 1;
+            } else if (is_string($completed)) {
+                $v = strtolower(trim($completed));
+                if (in_array($v, ['true', 'yes', 'y', 'on'], true)) $completedBool = true;
+                if (in_array($v, ['false', 'no', 'n', 'off'], true)) $completedBool = false;
+            }
+            if ($completedBool === null) {
+                http_response_code(400);
+                echo json_encode(['error' => 'completed must be boolean or 0/1']);
+                exit;
+            }
+            
+            // Build update payload
+            $updateData = [
+                'crd88_completed' => $completedBool,
+                'crd88_completionnotes' => (string)$completionNotes
+            ];
+            
+            $updateUrl = "{$DATAVERSE_URL}/api/data/v9.2/{$GOAL_TABLE}({$goalId})";
+            $updateRes = makeDataverseRequest('PATCH', $updateUrl, $accessToken, $updateData);
+            
+            if ($updateRes['status'] === 204 || $updateRes['status'] === 200) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Goal completion status updated',
+                    'goalId' => $goalId
+                ]);
+            } else {
+                http_response_code($updateRes['status']);
+                echo json_encode(['error' => 'Failed to update goal completion', 'details' => $updateRes['body']]);
+            }
+            break;
+
         default:
             http_response_code(400);
-            echo json_encode(['error' => 'Invalid action. Use: classes, students, submitReferrals, outcomes, outcomesPending, outcomesCompleted, latestReferralByStudent, latestActionPlanByReferral, upsertActionPlan, listGoalsByActionPlan, replaceGoals, listGoalsByReferral, createGoal, updateGoal, listActionPlansByGoal, upsertActionPlanForGoal, updateReferral, or getReferral']);
+            echo json_encode(['error' => 'Invalid action. Use: classes, students, submitReferrals, outcomes, outcomesPending, outcomesCompleted, latestReferralByStudent, latestActionPlanByReferral, upsertActionPlan, listGoalsByActionPlan, replaceGoals, listGoalsByReferral, createGoal, updateGoal, listActionPlansByGoal, upsertActionPlanForGoal, updateReferral, getReferral, actionPlansForReview, or updateGoalCompletion']);
             break;
     }
     
