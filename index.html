@@ -2053,13 +2053,10 @@
         // Referral creation (Dataverse write) API
         // Production target: parents.acsacademy.edu.sg/api/apReferral.php
         const REFERRAL_API_BASE_URL = 'https://parents.acsacademy.edu.sg/api/apReferral.php';
-        // Basic API key (NOTE: this is visible in the browser; use as a basic gate, not true secrecy)
-        // Must match the server env var `AP_REFERRAL_API_KEY` (or `AP_API_KEY`).
-        // This value should be injected from the GitHub Actions variable "AP_REFERRAL_API_KEY"
-        // For deployment: replace this placeholder via your build pipeline (e.g., using envsubst or a build script)
-        const AP_REFERRAL_API_KEY = typeof AP_REFERRAL_API_KEY !== 'undefined'
-            ? AP_REFERRAL_API_KEY
-            : (window.AP_REFERRAL_API_KEY || '__AP_REFERRAL_API_KEY_PLACEHOLDER__');
+
+        const AP_REFERRAL_API_KEY = (typeof window.AP_REFERRAL_API_KEY !== 'undefined' && window.AP_REFERRAL_API_KEY)
+            ? window.AP_REFERRAL_API_KEY
+            : '__AP_REFERRAL_API_KEY_PLACEHOLDER__';
 
         // Azure AD Configuration (for reference - actual auth is handled server-side)
         const AZURE_CONFIG = {
