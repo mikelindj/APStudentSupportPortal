@@ -1792,13 +1792,13 @@
                             <!-- Slide-in Action Plans panel (per Goal) -->
                             <div id="meetingGoalActionPanel" class="slide-panel" aria-hidden="true">
                                 <div class="slide-panel-header">
-                                    <button class="icon-btn" type="button" onclick="closeGoalActionPanel()" aria-label="Back to goals" title="Back">
+                                    <button class="icon-btn" type="button" onclick="closeGoalActionPanel()" aria-label="Back to Next Steps" title="Back">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                             <polyline points="15 18 9 12 15 6"></polyline>
                                         </svg>
                                     </button>
                                     <div style="min-width:0;">
-                                        <div style="font-weight: var(--fontWeightSemibold);">Goal</div>
+                                        <div style="font-weight: var(--fontWeightSemibold);">Next Steps</div>
                                         <div id="meetingActiveGoalTitle" style="color: var(--colorNeutralForeground2); font-size: var(--fontSizeSmall); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</div>
                                     </div>
                                     <div style="flex:1;"></div>
@@ -1939,7 +1939,7 @@
 
                     <div style="margin-top: var(--spacing-l);">
                         <div style="background: var(--colorNeutralBackground2); padding: var(--spacing-m); border-radius: var(--radiusMedium); margin-bottom: var(--spacing-l);">
-                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); margin-bottom: var(--spacing-xs);">Goal</div>
+                            <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2); margin-bottom: var(--spacing-xs);">Next Steps</div>
                             <div id="goalReviewModalGoalText" style="font-weight: var(--fontWeightSemibold);">—</div>
                         </div>
                         
@@ -1961,15 +1961,15 @@
                         <div class="form-group" style="margin-bottom: var(--spacing-l);">
                             <div class="switch-row" style="display: flex; align-items: center; gap: var(--spacing-m);">
                                 <div class="switch-label" style="flex: 1;">
-                                    <strong>Goal Completed</strong>
-                                    <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2);">Mark this goal as achieved</div>
+                                    <strong>Next Steps Completed</strong>
+                                    <div style="font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2);">Mark this next step as achieved</div>
                                 </div>
                                 <div class="fluent-switch">
                                     <input 
                                         type="checkbox" 
                                         id="goalReviewCompletedSwitch" 
                                         class="fluent-switch-input" 
-                                        aria-label="Goal Completed"
+                                        aria-label="Next Steps Completed"
                                     />
                                     <label for="goalReviewCompletedSwitch" class="fluent-switch-label">
                                         <span class="fluent-switch-slider" aria-hidden="true"></span>
@@ -2025,7 +2025,7 @@
 
                         <div class="form-group">
                             <label for="goalReviewNotes">Completion Notes</label>
-                            <textarea id="goalReviewNotes" class="form-control" rows="4" placeholder="Enter notes about the goal outcome..."></textarea>
+                            <textarea id="goalReviewNotes" class="form-control" rows="4" placeholder="Enter notes about the next step outcome..."></textarea>
                         </div>
                     </div>
 
