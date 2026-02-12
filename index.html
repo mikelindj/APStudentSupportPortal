@@ -3748,7 +3748,7 @@
                                 class="form-control"
                                 type="text"
                                 value="${escapeHtml(g?.text || '')}"
-                                placeholder="Type a goal..."
+                                placeholder="Type a next step..."
                                 oninput="meetingGoalsState[${idx}].text=this.value"
                                 onblur="saveMeetingGoalByIndex(${idx})"
                                 onkeydown="if(event.key==='Enter'){ event.preventDefault(); this.blur(); }"
@@ -3802,7 +3802,7 @@
             if (body) {
                 body.innerHTML = `
                     <div class="goals-row goals-row-empty">
-                        <div style="grid-column: 1 / -1; color: var(--colorNeutralForeground2); font-size: var(--fontSizeSmall);">Loading goals…</div>
+                        <div style="grid-column: 1 / -1; color: var(--colorNeutralForeground2); font-size: var(--fontSizeSmall);">Loading next steps...</div>
                     </div>
                 `;
             }
