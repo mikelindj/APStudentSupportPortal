@@ -1465,24 +1465,46 @@ try {
             $goalBindNavCandidates[] = $GOAL_ACTIONPLAN_LOOKUP_FIELD;
             $goalBindNavCandidates[] = 'crd88_actionplan';
             $bound = false;
+            $bindErrors = [];
             foreach ($goalBindNavCandidates as $gNav) {
                 if (isBlank($gNav)) continue;
                 $upd = ["{$gNav}@odata.bind" => odataBind($ACTIONPLAN_TABLE, $newApId)];
                 $gUpdUrl = "{$DATAVERSE_URL}/api/data/v9.2/{$GOAL_TABLE}({$goalId})";
                 $gUpdRes = makeDataverseRequest('PATCH', $gUpdUrl, $accessToken, $upd);
-                if ($gUpdRes['status'] === 204 || $gUpdRes['status'] === 200) { $bound = true; break; }
+                if ($gUpdRes['status'] === 204 || $gUpdRes['status'] === 200) { 
+                    $bound = true; 
+                    break; 
+                }
                 $undeclared = dataverseUndeclaredProperty($gUpdRes['body'] ?? '');
                 $invalid = dataverseInvalidProperty($gUpdRes['body'] ?? '');
-                if ($undeclared && strcasecmp($undeclared, $gNav) === 0) continue;
-                if ($invalid && strcasecmp($invalid, $gNav) === 0) continue;
-                break;
+                if ($undeclared && strcasecmp($undeclared, $gNav) === 0) {
+                    $bindErrors[] = "Field '{$gNav}' is undeclared";
+                    continue;
+                }
+                if ($invalid && strcasecmp($invalid, $gNav) === 0) {
+                    $bindErrors[] = "Field '{$gNav}' is invalid";
+                    continue;
+                }
+                // Other error - log it
+                $errorMsg = $gUpdRes['body'] ?? "HTTP {$gUpdRes['status']}";
+                $bindErrors[] = "Field '{$gNav}': {$errorMsg}";
+                // Don't break on other errors - try next candidate
             }
 
-            echo json_encode([
+            $response = [
                 'success' => true,
                 'message' => $bound ? 'Action plan created and linked to goal' : 'Action plan created (goal link failed)',
                 'actionPlanId' => $newApId
-            ]);
+            ];
+            
+            // Include diagnostic info if linking failed
+            if (!$bound && !empty($bindErrors)) {
+                $response['linkErrors'] = $bindErrors;
+                $response['goalId'] = $goalId; // Include for debugging
+                $response['triedFields'] = array_filter($goalBindNavCandidates, function($f) { return !isBlank($f); });
+            }
+            
+            echo json_encode($response);
             break;
 
         case 'listGoalsByActionPlan':

@@ -4036,11 +4036,24 @@
             const referralId = meetingActiveStudent?.referral?.crd88_referraltoapid;
             if (!goalId || !referralId) return;
 
+            // Validate goalId is a GUID (not an autonumber)
+            const guidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (!guidPattern.test(String(goalId))) {
+                const ap = meetingActionPlansState?.[goalId]?.[index];
+                if (ap) {
+                    ap.__saveStatusType = 'error';
+                    ap.__saveStatusMsg = `Error: Invalid goal ID format. Expected GUID, got: "${goalId}". This may be an autonumber instead of the GUID.`;
+                }
+                console.error('Invalid goalId format:', goalId, 'Expected GUID format (e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)');
+                renderMeetingActionPlansTable();
+                return;
+            }
+
             const ap = meetingActionPlansState?.[goalId]?.[index];
             if (!ap) return;
 
             const payload = {
-                goalId,
+                goalId: String(goalId), // Ensure it's a string
                 referralId,
                 actionPlanId: ap.id || null,
                 actionPlanDetails: (ap.actionPlanDetails || '').toString().trim(),
@@ -4062,8 +4075,23 @@
                 if (apId && !ap.id) {
                     meetingActionPlansState[goalId][index].id = apId;
                 }
-                meetingActionPlansState[goalId][index].__saveStatusType = 'success';
-                meetingActionPlansState[goalId][index].__saveStatusMsg = (res?.message || 'Saved.').toString();
+                
+                // Check if goal linking failed - treat as error/warning
+                const message = (res?.message || 'Saved.').toString();
+                if (message.includes('goal link failed') || message.includes('link failed')) {
+                    meetingActionPlansState[goalId][index].__saveStatusType = 'error';
+                    meetingActionPlansState[goalId][index].__saveStatusMsg = `Warning: ${message}${res?.linkErrors ? ' (Check console for details)' : ''}`;
+                    console.error('Action plan created but goal linking failed:', {
+                        message: res?.message,
+                        linkErrors: res?.linkErrors,
+                        goalId: res?.goalId,
+                        actionPlanId: res?.actionPlanId,
+                        triedFields: res?.triedFields
+                    });
+                } else {
+                    meetingActionPlansState[goalId][index].__saveStatusType = 'success';
+                    meetingActionPlansState[goalId][index].__saveStatusMsg = message;
+                }
             } catch (e) {
                 meetingActionPlansState[goalId][index].__saveStatusType = 'error';
                 meetingActionPlansState[goalId][index].__saveStatusMsg = `Error: ${e.message}`;
