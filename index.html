@@ -2464,12 +2464,30 @@
                     const msg = (result && (result.error || result.message))
                         ? (result.error || result.message)
                         : (raw || `API request failed (HTTP ${response.status})`);
-                    throw new Error(msg);
+                    const err = new Error(msg);
+                    err.status = response.status;
+                    err.responseBody = raw;
+                    throw err;
                 }
                 
                 return result || {};
             } catch (error) {
-                console.error('API call error:', error);
+                // Enhance error with more context for debugging
+                if (error.name === 'TypeError' && error.message.includes('fetch')) {
+                    const networkErr = new Error(`Failed to fetch: ${error.message}. Check CORS, network connectivity, and API URL.`);
+                    networkErr.originalError = error;
+                    networkErr.url = url;
+                    networkErr.apiKeyPresent = !!AP_REFERRAL_API_KEY;
+                    console.error('Network/CORS error:', networkErr);
+                    throw networkErr;
+                }
+                console.error('API call error:', {
+                    url: url,
+                    method: method,
+                    error: error.message,
+                    status: error.status,
+                    responseBody: error.responseBody
+                });
                 throw error;
             }
         }
@@ -3075,7 +3093,10 @@
 
             try {
                 // Fetch action plans that are due for review (reviewDate <= today)
+                console.log('Loading outcomes from:', REFERRAL_API_BASE_URL);
+                console.log('API key present:', !!AP_REFERRAL_API_KEY);
                 const response = await apiCall(REFERRAL_API_BASE_URL, 'actionPlansForReview');
+                console.log('Outcomes response:', response);
                 outcomesAllActionPlans = response.actionPlans || [];
 
                 // Group action plans by student
@@ -3144,8 +3165,43 @@
 
                 renderOutcomesStudentsList();
             } catch (error) {
-                pendingContainer.innerHTML = `<div class="empty-state"><p>Error loading: ${error.message}</p></div>`;
-                completedContainer.innerHTML = `<div class="empty-state"><p>Error loading: ${error.message}</p></div>`;
+                console.error('Error loading outcomes:', error);
+                const errorMsg = error.message || 'Unknown error';
+                const isNetworkError = errorMsg.includes('Failed to fetch') || errorMsg.includes('NetworkError') || errorMsg.includes('Network request failed') || error.name === 'TypeError';
+                
+                let displayMsg = errorMsg;
+                let diagnosticInfo = '';
+                
+                if (isNetworkError) {
+                    displayMsg = `Network error: Unable to connect to API server.`;
+                    diagnosticInfo = `
+                        <div style="margin-top: 12px; padding: 12px; background: var(--colorNeutralBackground2); border-radius: 4px; font-size: var(--fontSizeSmall); color: var(--colorNeutralForeground2);">
+                            <strong>Diagnostics:</strong><br>
+                            • API URL: ${REFERRAL_API_BASE_URL}<br>
+                            • API Key: ${AP_REFERRAL_API_KEY ? 'Present' : 'Missing'}<br>
+                            • Error: ${error.message || 'Unknown'}<br>
+                            <br>
+                            <strong>Possible causes:</strong><br>
+                            • CORS blocking the request<br>
+                            • Network connectivity issue<br>
+                            • Server is down or unreachable<br>
+                            • SSL certificate problem<br>
+                            <br>
+                            Check browser console (F12) for more details.
+                        </div>
+                    `;
+                    console.error('Network error details:', {
+                        url: `${REFERRAL_API_BASE_URL}?action=actionPlansForReview${AP_REFERRAL_API_KEY ? '&key=***' : ''}`,
+                        apiKeyPresent: !!AP_REFERRAL_API_KEY,
+                        apiKeyValue: AP_REFERRAL_API_KEY ? `${AP_REFERRAL_API_KEY.substring(0, 8)}...` : 'missing',
+                        error: error,
+                        errorName: error.name,
+                        errorStack: error.stack
+                    });
+                }
+                
+                pendingContainer.innerHTML = `<div class="empty-state"><p>Error loading: ${displayMsg}</p>${diagnosticInfo}</div>`;
+                completedContainer.innerHTML = `<div class="empty-state"><p>Error loading: ${displayMsg}</p>${diagnosticInfo}</div>`;
             }
         }
 
